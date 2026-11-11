@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mouflon</title>
+<meta name="description" content="Mouflon : un petit troupeau qui vit sur ton écran. Vingt-huit vraies races de moutons, chacune avec son bélier, sa brebis et son agneau. Gratuit et libre, pour Mac, Windows et Linux.">
+<meta name="author" content="Alejandro San Martin Lamas">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Mouflon">
+<meta property="og:description" content="Des moutons qui vivent sur ton écran comme un vrai troupeau : vingt-huit races dessinées d'après nature, à l'échelle.">
+<meta property="og:image" content="troupeau.webp">
+<link rel="icon" type="image/png" href="icone.png">
+<link rel="apple-touch-icon" href="icone.png">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root { color-scheme: light; } body { margin: 0; } img { max-width: 100%; }
+/* Un carnet de berger : une colonne de lecture, des planches pleine largeur
+   (le film du moteur, la frise des races à l'échelle), les mesures en chasse fixe. */
+:root {
+  --papier: #edf1ea; --papier-2: #f7f9f4; --encre: #1c2620; --encre-2: #55635a;
+  --filet: #c8d2c5; --bleu: #2a55a0; --rouge: #c23b2e; --herbe: #6c8c5b;
+  --titre: "Young Serif", Georgia, "Times New Roman", serif;
+  --texte: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mesure: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --papier: #0e1511; --papier-2: #151e18; --encre: #e4ebe2; --encre-2: #9ba89d;
+  --filet: #2b372f; --bleu: #8eb0f0; --rouge: #ee7d6e; --herbe: #6f915d; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --papier: #0e1511; --papier-2: #151e18; --encre: #e4ebe2; --encre-2: #9ba89d;
+  --filet: #2b372f; --bleu: #8eb0f0; --rouge: #ee7d6e; --herbe: #6f915d; color-scheme: dark }
+
+body { background: var(--papier); color: var(--encre); font: 400 1.0625rem/1.6 var(--texte);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.page { max-width: 1120px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--titre); font-weight: 400; text-wrap: balance; margin: 0; }
+p { margin: 0; }
+a { color: var(--bleu); text-underline-offset: 3px; }
+a:focus-visible, video:focus-visible, .frise:focus-visible { outline: 2px solid var(--bleu); outline-offset: 3px; }
+.etiquette { font: 500 .75rem/1.2 var(--mesure); letter-spacing: .09em; text-transform: uppercase; color: var(--encre-2); }
+section { padding-block: clamp(3rem, 7vw, 5.5rem); border-top: 1px solid var(--filet); display: grid; gap: 1.75rem; }
+section > header { display: grid; gap: .6rem; max-width: 68ch; }
+section h2 { font-size: clamp(1.9rem, 4.2vw, 2.7rem); line-height: 1.12; }
+.chapo { color: var(--encre-2); font-size: 1.125rem; max-width: 64ch; }
+
+/* En-tête */
+.une { padding-block: clamp(2.5rem, 7vw, 4.5rem) clamp(2rem, 5vw, 3.5rem); display: grid; gap: 1.6rem; }
+.une h1 { font-size: clamp(3.6rem, 13vw, 8.5rem); line-height: .92; letter-spacing: -.02em; display: flex; align-items: flex-start; gap: .12em; }
+.une h1 .marque { color: var(--rouge); font-size: .34em; line-height: 1; transform: rotate(-8deg) translateY(.2em); }
+.une .these { font-family: var(--titre); font-size: clamp(1.45rem, 3.4vw, 2.2rem); line-height: 1.22; max-width: 26ch; text-wrap: balance; }
+.une .these em { font-style: normal; color: var(--bleu); }
+.une .lede { max-width: 62ch; color: var(--encre-2); font-size: 1.125rem; }
+.une .prendre { display: flex; flex-wrap: wrap; gap: .6rem 1.4rem; align-items: baseline; margin: 1.1rem 0 0;
+  font: 500 .95rem/1.4 var(--mesure); }
+.une .prendre a { color: var(--bleu); text-decoration: none; border-bottom: 1px solid currentColor; padding-bottom: 1px; }
+.une .prendre a:hover, .une .prendre a:focus-visible { color: var(--encre); }
+.une .prendre span { color: var(--encre-2); font-weight: 400; }
+.film { margin: 0; display: grid; gap: .7rem; }
+.film video, .film img { width: 100%; height: auto; display: block; border-radius: 14px; border: 1px solid var(--filet);
+  background: var(--papier-2); aspect-ratio: 16 / 10; box-shadow: 0 18px 50px -28px rgb(20 40 30 / .45); }
+.film figcaption, .legende { font: 400 .8125rem/1.5 var(--mesure); color: var(--encre-2); }
+.film figcaption { display: grid; gap: .45rem; }
+.film .scene { font: 500 1.0625rem/1.4 var(--texte); color: var(--encre); min-height: 2.8em; margin: 0; }
+.film .scene::before { content: "▸ "; color: var(--rouge); }
+.reperes { display: flex; flex-wrap: wrap; gap: .5rem 1.6rem; padding: 0; margin: 0; list-style: none;
+  font: 400 .875rem/1.4 var(--mesure); color: var(--encre-2); }
+.reperes b { color: var(--encre); font-weight: 500; }
+
+/* Comportements */
+.moeurs { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 1.6rem 2.4rem; }
+.moeurs article { display: grid; gap: .35rem; align-content: start; min-width: 0; }
+.moeurs h3 { font-size: 1.25rem; line-height: 1.25; }
+.moeurs p { color: var(--encre-2); }
+.source { font: 400 .75rem/1.4 var(--mesure); color: var(--encre-2); opacity: .9; }
+.source::before { content: "↳ "; color: var(--rouge); }
+
+/* Frise à l'échelle */
+.frise { overflow-x: auto; overscroll-behavior-x: contain; padding-bottom: .4rem; scrollbar-width: thin; }
+.sol { display: flex; align-items: flex-end; gap: 1.1rem; width: max-content; padding: 1.2rem .4rem 0;
+  border-bottom: 2px solid var(--herbe); position: relative; }
+.toise { align-self: stretch; display: flex; align-items: flex-end; padding-right: .6rem; }
+.toise span { display: block; width: 10px; height: 190px; border-left: 2px solid var(--encre-2);
+  background: repeating-linear-gradient(to top, var(--encre-2) 0 1px, transparent 1px 19px) left / 6px 100% no-repeat; position: relative; }
+.toise span::after { content: "1 m"; position: absolute; top: -1.3rem; left: -2px; font: 500 .7rem var(--mesure); color: var(--encre-2); white-space: nowrap; }
+.famille { margin: 0; flex: none; position: relative; padding-inline: .5rem; }
+.famille + .famille { border-left: 1px dashed var(--filet); }
+.betes { display: flex; align-items: flex-end; gap: .7rem; }
+.bete { position: relative; display: flex; justify-content: center; min-width: 3.6rem; }
+.bete img { display: block; height: auto; max-width: none; }
+.bete small { position: absolute; top: calc(100% + .5rem); left: 50%; translate: -50% 0; text-align: center; white-space: nowrap; font: 400 .68rem/1.3 var(--mesure); color: var(--encre-2); }
+.famille figcaption { position: absolute; top: calc(100% + 2.6rem); left: 0; right: 0; text-align: center; font: 600 .82rem/1.3 var(--texte); color: var(--encre); }
+.frise-pied { height: 4.6rem; }
+
+/* Cartes des races */
+.cartes { display: grid; grid-template-columns: minmax(0, 1fr); gap: .8rem; }
+@media (min-width: 560px) { .cartes { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 900px) { .cartes { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; } }
+.carte { background: var(--papier-2); border: 1px solid var(--filet); border-radius: 10px; padding: .9rem .95rem 1rem; display: grid; gap: .3rem; align-content: start; min-width: 0; }
+.vignette { aspect-ratio: 5 / 2; display: flex; align-items: flex-end; justify-content: center; gap: 3%; border-bottom: 1px solid var(--filet); margin-bottom: .45rem; }
+.vignette span { flex: 0 1 calc(var(--p) * .94%); min-width: 0; display: flex; align-items: flex-end; }
+.vignette img { display: block; width: 100%; height: auto; }
+.carte.seule .vignette span { flex-basis: 42%; }
+.carte h3 { font-size: 1.1rem; line-height: 1.2; }
+.carte .mesure { font: 400 .72rem/1.4 var(--mesure); color: var(--bleu); }
+.carte .origine { font-size: .82rem; font-weight: 600; color: var(--encre); }
+.carte p:last-child { font-size: .9rem; line-height: 1.45; color: var(--encre-2); }
+
+/* Bureau et technique */
+.colonnes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 1.4rem 2.6rem; }
+.colonnes ul { margin: 0; padding: 0; list-style: none; display: grid; gap: .9rem; }
+.colonnes li { padding-left: 1.1rem; position: relative; min-width: 0; }
+.colonnes li::before { content: ""; position: absolute; left: 0; top: .66em; width: .45rem; height: .45rem; border-radius: 50%; background: var(--herbe); }
+.colonnes li b { font-weight: 600; }
+.chiffres { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 1.1rem 2rem; margin: 0; }
+.chiffres div { display: grid; gap: .2rem; align-content: start; border-top: 1px solid var(--filet); padding-top: .8rem; min-width: 0; }
+.chiffres dt { font: 500 .78rem/1.3 var(--mesure); color: var(--bleu); letter-spacing: .02em; }
+.chiffres dd { margin: 0; color: var(--encre-2); font-size: .95rem; }
+
+/* Feuille de route */
+.route { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 1.2rem; counter-reset: etape; }
+.route article { border: 1px solid var(--filet); border-radius: 10px; padding: 1.1rem 1.15rem 1.2rem; display: grid; gap: .6rem; align-content: start; background: var(--papier-2); min-width: 0; }
+.route article.maintenant { border-color: var(--bleu); }
+.route h3 { font-size: 1.3rem; }
+.route ul { margin: 0; padding-left: 1.05rem; display: grid; gap: .45rem; color: var(--encre-2); font-size: .95rem; }
+.route .etiquette { color: var(--bleu); }
+
+footer { border-top: 1px solid var(--filet); padding-block: 2rem 3rem; display: grid; gap: .5rem; font-size: .9rem; color: var(--encre-2); }
+footer .ligne { display: flex; flex-wrap: wrap; gap: .3rem 1.4rem; }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="une">
+    <p class="etiquette">Des moutons de compagnie pour ton écran · Mac, Windows et Linux · gratuit et libre</p>
+    <h1>Mouflon<span class="marque" aria-hidden="true">φ</span></h1>
+    <p class="these">Le premier troupeau virtuel&nbsp;: des moutons qui vivent sur ton écran <em>comme un vrai troupeau</em>.</p>
+    <p class="lede">Ils tombent du haut de l'écran, se promènent sur le bord de tes fenêtres, broutent, se suivent, détalent tous ensemble et font les fous comme des agneaux. Tu peux en attraper un et le lancer&nbsp;: il ne t'en voudra pas longtemps. Vingt-huit races bien réelles, dessinées d'après nature, chacune avec son bélier, sa brebis et son agneau.</p>
+    <p class="prendre"><a href="https://github.com/alejandrosml/Mouflon/releases">Télécharger Mouflon</a><span>Mac · Windows · Linux (aperçu)</span><a href="https://github.com/alejandrosml/Mouflon">Le code</a></p>
+    <figure class="film">
+      {{FILM}}
+      <figcaption><p class="scene" id="scene">{{SCENE_FILM}}</p><span>{{LEGENDE_FILM}}</span></figcaption>
+    </figure>
+    <ul class="reperes">
+      <li><b>28</b> races réelles, <b>84</b> portraits</li>
+      <li><b>1 000</b> moutons à l'écran sans faire ramer ta machine</li>
+      <li><b>Gratuit</b>, sans pub et sans compte</li>
+      <li>Sur Mac, l'app est <b>signée et vérifiée par Apple</b></li>
+    </ul>
+  </header>
+
+  <section id="troupeau" aria-labelledby="t-troupeau">
+    <header>
+      <p class="etiquette">Ce qui le rend unique</p>
+      <h2 id="t-troupeau">Un troupeau, pas des moutons chacun dans son coin</h2>
+      <p class="chapo">D'habitude, les compagnons de bureau vivent chacun pour soi. Ceux-ci se regardent, s'imitent et se retrouvent : laisse-les cinq minutes, ils ont déjà formé une bande.</p>
+    </header>
+    <div class="moeurs">
+      <article><h3>Suivre celui qui part</h3><p>Un mouton se met en route ? Un voisin lui emboîte le pas, un peu après, du même côté. Les bâillements et les cabrioles sont tout aussi contagieux.</p><p class="source">Au pré, 95 % des moutons partent dans les 12 s qui suivent leur voisin</p></article>
+      <article><h3>Se serrer les uns contre les autres</h3><p>De temps en temps, le troupeau éparpillé se regroupe. Le plus éloigné part le premier, les autres suivent en vague, et chacun garde sa place.</p><p class="source">Ginelli et al., PNAS 2015</p></article>
+      <article><h3>Détaler ensemble</h3><p>À la moindre alerte, toute la bande file au galop. Le mouflon et l'Ouessant, curieux, se retournent ensuite pour voir ce que c'était.</p><p class="source">Fiches du mouflon de Corse et de l'Ouessant</p></article>
+      <article><h3>Jouer comme des agneaux</h3><p>Sauts tordus, demi-tours en l'air, courses aller et retour, coups de front après trois pas de recul. Pour inviter un copain, l'agneau baisse la tête et sautille.</p><p class="source">Augustsson 2018</p></article>
+      <article><h3>Béliers, brebis et agneaux</h3><p>Trois brebis pour un bélier, et une brebis sur quatre arrive avec son petit. L'agneau a sa voix, plus aiguë, et gambade bien plus que ses parents.</p><p class="source">Un bélier, une brebis et un agneau dessinés pour chaque race</p></article>
+      <article><h3>La mère et son agneau</h3><p>Il la suit partout, et tète sous son flanc en frétillant de la queue.</p><p class="source">Gordon &amp; Siegmann 1991</p></article>
+      <article><h3>Des oreilles qui disent tout</h3><p>Dressées quand il s'énerve, couchées quand il fonce ou qu'on le soulève, pendantes quand il est tranquille. Chaque mouton a son caractère : calme, actif ou franchement énervé.</p><p class="source">Boissy et al. 2011</p></article>
+      <article><h3>Une vraie démarche de mouton</h3><p>Le pas, le trot, le galop, chacun avec le bon ordre des pattes. Les sabots ne glissent pas, et un mouton qui s'arrête finit son pas avant de se remettre d'aplomb.</p><p class="source">Tans, Nauwelaerts et Clayton 2009</p></article>
+      <article><h3>La laine qui pend</h3><p>Quand le Scottish Blackface, la Manech tête rousse ou la Racka baissent la tête, leur longue laine pend et se balance : lentement pour les longues mèches, plus vite pour les courtes.</p><p class="source">Comme un pendule : 2 balancements par seconde pour une mèche de 9 cm</p></article>
+      <article><h3>L'œil du mouton</h3><p>Une pupille en fente horizontale, qui reste à l'horizontale même quand la tête plonge dans l'herbe. Les vrais font pareil.</p><p class="source">Banks et al., Science Advances 2015</p></article>
+    </div>
+  </section>
+
+  <section id="races" aria-labelledby="t-races">
+    <header>
+      <p class="etiquette">Vingt-huit races, à l'échelle</p>
+      <h2 id="t-races">Du mouton d'Ouessant au Zwartbles</h2>
+      <p class="chapo">Chaque race a d'abord eu sa fiche : son standard, des mesures, des photographies regardées de près. Puis ses trois portraits : le bélier, la brebis et l'agneau. Ici, tout le monde est à la même échelle : cherche le petit Ouessant, puis le grand Zwartbles.</p>
+    </header>
+    <div class="frise" tabindex="0" role="region" aria-label="Le bélier, la brebis et l'agneau de chaque race, à l'échelle, de la plus petite à la plus grande">
+      <div class="sol">
+        <div class="toise" aria-hidden="true"><span></span></div>
+{{FRISE}}
+      </div>
+      <div class="frise-pied"></div>
+    </div>
+    <p class="legende">Hauteur au garrot de chaque animal dessiné. Fais défiler la frise vers la droite.</p>
+    <div class="cartes">
+{{CARTES}}
+    </div>
+  </section>
+
+  <section id="bureau" aria-labelledby="t-bureau">
+    <header>
+      <p class="etiquette">Sur ton bureau</p>
+      <h2 id="t-bureau">Les fenêtres deviennent des rochers</h2>
+      <p class="chapo">Pour eux, chaque fenêtre ouverte est un rebord où se promener, brouter ou piquer un somme. Et si tu le veux, le Dock devient un muret.</p>
+    </header>
+    <div class="colonnes">
+      <ul>
+        <li><b>Marcher sur les fenêtres.</b> Ils marchent sur leur bord et s'y posent en tombant. Déplace la fenêtre : ils partent avec. Trop vite ? Ils glissent, ou tombent.</li>
+        <li><b>Les prendre en main.</b> Un mouton s'attrape comme une fenêtre, et se lance : il vole dans le sens du geste, rebondit, se relève et s'ébroue.</li>
+        <li><b>Sauter sur un rocher.</b> Une fenêtre plus haute, toute proche ? Il la mesure du regard, recule d'un pas et s'y hisse d'un bond, comme un mouflon.</li>
+        <li><b>Une journée de mouton.</b> Brouter, ruminer couché, dormir le menton au sol, s'ébrouer, bâiller, bêler, tourner le dos au vent.</li>
+      </ul>
+      <ul>
+        <li><b>Des surprises.</b> Un coup de vent emporte des feuilles. Une soucoupe volante emprunte parfois un mouton ; lance-lui en un autre dessus, pour voir.</li>
+        <li><b>Choisir ses bêtes.</b> Le menu range les races par région, et la galerie te laisse demander un bélier, une brebis ou un agneau.</li>
+        <li><b>À ta façon.</b> Taille, humeur, sons, raccourcis clavier, lancement à l'ouverture de session : tout se règle depuis l'icône de Mouflon.</li>
+        <li><b>Tes propres animaux.</b> Tu peux dessiner les tiens. Mouflon accueille aussi ceux de desktopPet (eSheep), qui grimpent aux murs des fenêtres.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="route" aria-labelledby="t-route">
+    <header>
+      <p class="etiquette">La suite</p>
+      <h2 id="t-route">Où va le troupeau</h2>
+      <p class="chapo">Mouflon avance par essais, sur de vraies machines. Voici où il en est, et ce qui vient.</p>
+    </header>
+    <div class="route">
+      <article class="maintenant"><p class="etiquette">Aujourd'hui · novembre 2026</p><h3>La version 1.0</h3>
+        <ul><li>Vingt-huit races réelles à l'échelle, chacune avec son bélier, sa brebis et son agneau.</li><li>La vie du troupeau, les jeux, la mère et son agneau.</li><li>Sur Mac, sous Windows, et sous Linux en aperçu.</li><li>Sur Mac, une app signée et vérifiée par Apple : elle s'ouvre d'un double-clic.</li></ul></article>
+      <article><p class="etiquette">Ensuite</p><h3>Plus facile à installer</h3>
+        <ul><li>Le Mac App Store.</li><li>Sous Windows et Linux, la fenêtre des réglages et la galerie des animaux, comme sur Mac.</li><li>Sous Linux, Wayland directement.</li></ul></article>
+      <article><p class="etiquette">Plus tard</p><h3>Un troupeau plus grand et plus varié</h3>
+        <ul><li>D'autres animaux et d'autres styles : aquarelle, dessin peint, Grease Pencil.</li><li>Des agneaux qui grandissent.</li><li>Un agneau dessiné pour lui-même partout où il porte encore la toison de l'adulte en petit.</li></ul></article>
+    </div>
+  </section>
+
+  <section id="technique" aria-labelledby="t-technique">
+    <header>
+      <p class="etiquette">Pour les curieux · fiche technique</p>
+      <h2 id="t-technique">Sous la laine</h2>
+      <p class="chapo">Tout ce qui précède se passe très bien de cette partie. Elle est là pour celles et ceux qui aiment soulever le capot.</p>
+    </header>
+    <dl class="chiffres">
+      <div><dt>Ce qu'il faut</dt><dd>Un Mac Apple Silicon sous macOS 26 ou plus récent ; Windows 10 ou 11 (64 bits) ; Linux x86_64 sous X11 (XWayland sous Wayland), en aperçu.</dd></div>
+      <div><dt>Signée et notarisée</dt><dd>L'app Mac est signée avec un certificat Developer ID et notarisée par Apple ; le ticket est agrafé à l'app.</dd></div>
+      <div><dt>Rust, de bout en bout</dt><dd>Un cœur déterministe et sans dépendance au système ; le code propre à macOS, à Windows et à Linux est isolé dans une seule partie.</dd></div>
+      <div><dt>1 000 moutons : 60 images par seconde</dt><dd>Sur le Mac d'essai, mille moutons dessinés, simulation et physique comprises. Chacun est redessiné à son rythme : celui qui dort bien moins souvent que celui qui court.</dd></div>
+      <div><dt>Des dessins cuits une fois</dt><dd>Chaque race est un dessin vectoriel écrit par un script, où une unité vaut un centimètre de l'animal. Au chargement, il est découpé à ses articulations et « cuit » en images, une fois pour toutes.</dd></div>
+      <div><dt>Le système compose</dt><dd>Une fenêtre transparente par écran. Sur Mac, un calque Core Animation par morceau ; sous Windows et Linux, le processeur graphique dessine tout le troupeau en un seul envoi.</dd></div>
+      <div><dt>Zéro à-coup visé</dt><dd>À chaque modification, l'intégration continue lance des essais sur un Mac virtuel et échoue au moindre à-coup dû à Mouflon, au moindre saut ou à la moindre panique. Trois essais d'endurance (écrans qui changent, utilisateur brouillon, fichiers abîmés) cherchent ce que personne n'a prévu.</dd></div>
+      <div><dt>Un format ouvert</dt><dd>Un animal est un dossier : un fichier <code>pet.toml</code> (comportements, sons, humeur) et ses dessins. Mouflon lit aussi le format de desktopPet.</dd></div>
+      <div><dt>Mesuré sur les vrais</dt><dd>Les allures suivent la biomécanique du mouton (pas en séquence latérale, trot par paires diagonales, galop transverse) ; les mèches se balancent comme des pendules : 2 Hz pour 9 cm, 1,25 Hz pour les cordes de 23 cm de la Racka.</dd></div>
+      <div><dt>Licence</dt><dd>MIT ou Apache-2.0, au choix. Le code est sur <a href="https://github.com/alejandrosml/Mouflon">GitHub</a>.</dd></div>
+    </dl>
+  </section>
+
+  <footer>
+    <p class="ligne"><span>Mouflon · © 2026 Alejandro San Martin Lamas</span><span>MIT ou Apache-2.0</span><a href="https://github.com/alejandrosml/Mouflon">github.com/alejandrosml/Mouflon</a></p>
+    <p>Les dessins sont originaux, faits d'après les standards des races ; les photographies ont été regardées, jamais copiées. Les sons sont dans le domaine public ou sous licence CC0.</p>
+  </footer>
+</div>
+<script>
+  (function () {
+    var v = document.getElementById("film");
+    if (!v) return;
+    try {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { v.removeAttribute("autoplay"); v.pause(); v.controls = true; }
+    } catch (e) {}
+    // La ligne sous la vidéo dit ce qui s'y passe, au fil des scènes.
+    var scenes = {{SCENES}}, ligne = document.getElementById("scene"), montree = -1;
+    if (!ligne) return;
+    function suivre() {
+      var i = 0;
+      for (var k = 0; k < scenes.length; k++) if (v.currentTime >= scenes[k][0]) i = k;
+      if (i !== montree) { montree = i; ligne.textContent = scenes[i][1]; }
+    }
+    v.addEventListener("timeupdate", suivre);
+    v.addEventListener("seeked", suivre);
+  })();
+</script>
+</body>
+</html>

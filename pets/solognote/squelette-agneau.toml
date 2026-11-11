@@ -1,0 +1,263 @@
+# Agneau Solognot de deux semaines : 38 cm au garrot, roux-chocolat de la tête aux pieds, laine courte.
+# Tiré de la brebis peinte (squelette.toml et morceaux/) par
+# tools/races/solognote/variantes_solognote.py : ne pas le modifier à la main.
+# Sept pixels par centimètre ; le sol est à y = 376.
+size = [515, 418]
+ground = [226.0, 376.0]
+muzzle = [467.4, 156.8]
+
+[[bone]]
+name = "racine"
+at = [226.0, 376.0]
+
+[[bone]]
+name = "corps"
+parent = "racine"
+at = [221.6, 184.9]
+role = "body"
+
+[[bone]]
+name = "queue"
+parent = "corps"
+at = [76.1, 142.4]
+role = "tail"
+
+[[bone]]
+name = "queue-milieu"
+parent = "queue"
+at = [59.0, 194.2]
+role = "tail"
+
+[[bone]]
+name = "queue-bout"
+parent = "queue-milieu"
+at = [47.2, 247.8]
+role = "tail"
+
+[[bone]]
+name = "patte-arriere-loin"
+parent = "corps"
+at = [115.2, 211.5]
+role = "leg-back-far"
+
+[[bone]]
+name = "patte-arriere-loin-bas"
+parent = "patte-arriere-loin"
+at = [98.2, 271.9]
+role = "leg-back-far-lower"
+
+[[bone]]
+name = "patte-avant-loin"
+parent = "corps"
+at = [326.5, 211.5]
+role = "leg-front-far"
+
+[[bone]]
+name = "patte-avant-loin-bas"
+parent = "patte-avant-loin"
+at = [330.6, 299.4]
+role = "leg-front-far-lower"
+
+[[bone]]
+name = "patte-arriere-pres"
+parent = "corps"
+at = [132.5, 211.5]
+role = "leg-back-near"
+
+[[bone]]
+name = "patte-arriere-pres-bas"
+parent = "patte-arriere-pres"
+at = [113.5, 271.9]
+role = "leg-back-near-lower"
+
+[[bone]]
+name = "patte-avant-pres"
+parent = "corps"
+at = [342.8, 211.5]
+role = "leg-front-near"
+
+[[bone]]
+name = "patte-avant-pres-bas"
+parent = "patte-avant-pres"
+at = [346.9, 299.4]
+role = "leg-front-near-lower"
+
+[[bone]]
+name = "meche-1"
+parent = "corps"
+at = [300.7, 217.2]
+role = "sway"
+
+[[bone]]
+name = "meche-2"
+parent = "corps"
+at = [246.1, 220.6]
+role = "sway"
+
+[[bone]]
+name = "meche-3"
+parent = "corps"
+at = [195.8, 219.7]
+role = "sway"
+
+[[bone]]
+name = "encolure"
+parent = "corps"
+at = [329.5, 182.5]
+role = "neck"
+
+[[bone]]
+name = "tete"
+parent = "encolure"
+# La nuque est au sommet arrière du crâne, au-dessus de la base des
+# oreilles : le broutage pivote ici, pas dans la joue.
+at = [382.9, 41.1]
+role = "head"
+
+[[bone]]
+name = "oreille-loin"
+parent = "tete"
+at = [380.7, 59.3]
+role = "ear"
+
+[[bone]]
+name = "oreille-pres"
+parent = "tete"
+at = [383.7, 70.0]
+role = "ear"
+
+[[bone]]
+name = "oeil"
+parent = "tete"
+at = [413.3, 87.0]
+role = "eye"
+
+[[bone]]
+name = "pupille"
+parent = "oeil"
+at = [413.3, 87.0]
+role = "pupil"
+
+[[bone]]
+name = "machoire"
+parent = "tete"
+at = [430.1, 143.4]
+role = "jaw"
+
+[[bone]]
+name = "levre"
+parent = "tete"
+at = [459.5, 145.7]
+role = "lip"
+
+[[piece]]
+bone = "patte-arriere-loin-bas"
+image = "morceaux-agneau/patte-arriere-loin-bas.png"
+
+[[piece]]
+bone = "patte-arriere-loin"
+image = "morceaux-agneau/patte-arriere-loin.png"
+
+[[piece]]
+bone = "patte-avant-loin-bas"
+image = "morceaux-agneau/patte-avant-loin-bas.png"
+
+[[piece]]
+bone = "patte-avant-loin"
+image = "morceaux-agneau/patte-avant-loin.png"
+
+[[piece]]
+bone = "queue"
+image = "morceaux-agneau/queue.png"
+
+[[piece]]
+bone = "queue-milieu"
+image = "morceaux-agneau/queue-milieu.png"
+
+[[piece]]
+bone = "queue-bout"
+image = "morceaux-agneau/queue-bout.png"
+
+[[piece]]
+bone = "patte-arriere-pres-bas"
+image = "morceaux-agneau/patte-arriere-pres-bas.png"
+
+[[piece]]
+bone = "patte-arriere-pres"
+image = "morceaux-agneau/patte-arriere-pres.png"
+
+[[piece]]
+bone = "patte-avant-pres-bas"
+image = "morceaux-agneau/patte-avant-pres-bas.png"
+
+[[piece]]
+bone = "patte-avant-pres"
+image = "morceaux-agneau/patte-avant-pres.png"
+
+[[piece]]
+bone = "corps"
+image = "morceaux-agneau/ventre.png"
+
+[[piece]]
+bone = "encolure"
+image = "morceaux-agneau/encolure.png"
+
+[[piece]]
+bone = "meche-1"
+image = "morceaux-agneau/meche-1.png"
+
+[[piece]]
+bone = "meche-2"
+image = "morceaux-agneau/meche-2.png"
+
+[[piece]]
+bone = "meche-3"
+image = "morceaux-agneau/meche-3.png"
+
+[[piece]]
+bone = "corps"
+image = "morceaux-agneau/corps.png"
+
+[[piece]]
+bone = "oreille-loin"
+image = "morceaux-agneau/oreille-loin.png"
+
+[[piece]]
+bone = "machoire"
+image = "morceaux-agneau/machoire.png"
+
+[[piece]]
+bone = "tete"
+image = "morceaux-agneau/tete.png"
+
+[[piece]]
+bone = "tete"
+image = "morceaux-agneau/gencive.png"
+
+[[piece]]
+bone = "levre"
+image = "morceaux-agneau/levre.png"
+
+[[piece]]
+bone = "oreille-pres"
+image = "morceaux-agneau/oreille-pres.png"
+
+[[piece]]
+bone = "oeil"
+image = "morceaux-agneau/oeil.png"
+eyes = "open"
+
+[[piece]]
+bone = "pupille"
+image = "morceaux-agneau/pupille.png"
+eyes = "open"
+
+[[piece]]
+bone = "oeil"
+image = "morceaux-agneau/reflet.png"
+eyes = "open"
+
+[[piece]]
+bone = "oeil"
+image = "morceaux-agneau/oeil-ferme.png"
+eyes = "closed"

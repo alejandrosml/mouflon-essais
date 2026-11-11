@@ -1,0 +1,67 @@
+Mouflon pour Linux (aperçu)
+===========================
+
+Des moutons qui vivent sur le bureau : ils marchent sur les fenêtres,
+broutent, se rencontrent, jouent.
+
+C'est un aperçu : Mouflon est né sur Mac, et cette version Linux est jeune.
+
+Pour commencer
+--------------
+1. Garde ce dossier entier (le programme a besoin du dossier « pets » à côté de lui).
+2. Lance ./mouflon (ou ./installer.sh une fois, pour l'avoir dans le menu
+   des applications).
+3. Clic droit sur un mouton : son menu, et de quoi ajouter d'autres animaux,
+   ouvrir les réglages, quitter. On peut aussi l'attraper à la souris et le lancer.
+
+Ce qu'il faut
+-------------
+- Un bureau X11 avec un compositeur (GNOME, KDE, Xfce, Cinnamon, MATE…).
+  Sous Wayland, Mouflon passe par XWayland : les moutons vivent au bas de
+  l'écran et ne montent que sur les fenêtres des applications X11.
+- Pour les menus : zenity (GNOME et la plupart des bureaux) ou kdialog (KDE).
+- Pour les sons : mpg123, pw-play, paplay ou ffplay (l'un d'eux suffit).
+- Une carte graphique avec Vulkan ou OpenGL (sans carte graphique, dans une
+  machine virtuelle par exemple, Mouflon passe de lui-même par OpenGL).
+- La bibliothèque libxkbcommon-x11 (elle est là sur tous les bureaux ; sinon :
+  le paquet libxkbcommon-x11-0 sous Debian et Ubuntu).
+
+Si le fond de l'écran devient noir au lieu de rester transparent, essaie :
+    WGPU_BACKEND=vulkan ./mouflon      ou      WGPU_BACKEND=gl ./mouflon
+et dis-le-nous : asml@laposte.net
+
+--------------------------------------------------------------------------
+
+Mouflon for Linux (preview)
+===========================
+
+Sheep that live on your desktop: they walk on your windows, graze, meet
+and play.
+
+This is a preview: Mouflon was born on the Mac and this Linux version is young.
+
+Getting started
+---------------
+1. Keep this whole folder (the program needs the "pets" folder next to it).
+2. Run ./mouflon (or ./installer.sh once, to add it to your applications menu).
+3. Right-click a sheep for its menu, which also lets you add other animals,
+   open the settings and quit. You can also grab a sheep and throw it.
+
+Requirements
+------------
+- An X11 desktop with a compositor (GNOME, KDE, Xfce, Cinnamon, MATE…).
+  Under Wayland, Mouflon runs through XWayland: the sheep live at the bottom
+  of the screen and only climb onto the windows of X11 applications.
+- For menus: zenity (GNOME and most desktops) or kdialog (KDE).
+- For sounds: mpg123, pw-play, paplay or ffplay (any one of them).
+- A graphics card with Vulkan or OpenGL (without one, in a virtual machine
+  for instance, Mouflon uses OpenGL by itself).
+- The libxkbcommon-x11 library (present on every desktop; otherwise the
+  libxkbcommon-x11-0 package on Debian and Ubuntu).
+
+If the screen background turns black instead of staying transparent, try:
+    WGPU_BACKEND=vulkan ./mouflon      or      WGPU_BACKEND=gl ./mouflon
+and tell us: asml@laposte.net
+
+Mouflon : https://alejandrosml.github.io/Mouflon/
+© 2026 Alejandro San Martin Lamas — https://github.com/alejandrosml

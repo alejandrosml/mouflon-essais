@@ -1,0 +1,17 @@
+[package]
+name = "mouflon-licenses"
+description = "Rassemble les licences des bibliothèques livrées dans Mouflon, pour les joindre à l'app."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+publish = false
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+
+[lints]
+workspace = true

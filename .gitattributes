@@ -1,0 +1,24 @@
+# Un script de Windows garde ses fins de ligne de Windows, où qu'on le
+# récupère : avec d'autres, l'interpréteur de commandes peut mal le lire.
+*.cmd text eol=crlf
+
+# Ce qui ne part pas dans l'archive du code publiée avec chaque version
+# (scripts/package-source.sh). Rien de cela ne sert à reconstruire Mouflon.
+#
+# Les fichiers Markdown sont les consignes et les notes de travail : aucun ne
+# part, sauf ceux nommés ici (les crédits, que l'on doit distribuer, et les
+# trois modes d'emploi pour créer un animal). Le README de l'archive est un
+# texte court écrit pour le public, packaging/source/README.md, que le script
+# pose à sa racine ; celui du dépôt reste ici.
+*.md export-ignore
+/CREDITS.md -export-ignore
+/docs/format.md -export-ignore
+/docs/rig.md -export-ignore
+/docs/squelette.md -export-ignore
+# Les dossiers qui ne contiennent que cela, le travail en cours et les outils
+# propres à l'auteur.
+/docs/chantiers export-ignore
+/docs/races export-ignore
+/docs/versions export-ignore
+/tools/signature export-ignore
+/packaging/source export-ignore

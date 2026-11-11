@@ -1,0 +1,18 @@
+/target
+/dist
+/apercu
+/vitrine
+.DS_Store
+# Animaux d'essai, et animaux livrés dans tes builds : jamais publiés dans le dépôt
+/essais
+/animaux
+__pycache__/
+# Un aperçu de la Solognote écrit par le peintre à côté de ses morceaux :
+# jamais livré (demande-le plutôt dans apercu/)
+/pets/solognote/morceaux/apercu.png
+# Le dossier de travail de tools/signature (zip signé, journal)
+/signature
+essai-windows/
+vitrine-windows/
+# Le journal d'un essai lancé depuis la racine (MOUFLON_ESSAI)
+/mouflon-essai.log
