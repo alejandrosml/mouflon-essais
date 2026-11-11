@@ -1,0 +1,36 @@
+# Le ménage du dépôt d'essais, chaque nuit (scripts/menage.sh) : les branches
+# d'essai abandonnées sont supprimées, et les passages des essais terminés
+# depuis plus d'un jour effacés, sauf le dernier de chaque branche.
+name: Ménage
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+    inputs:
+      a_blanc:
+        description: "Dire seulement ce qui serait effacé, sans rien effacer"
+        type: boolean
+        default: false
+
+permissions: {}
+
+concurrency:
+  group: menage
+  cancel-in-progress: false
+
+jobs:
+  menage:
+    name: Ne garder que ce qui sert encore
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write # efface les anciens passages
+      contents: write # supprime les branches d'essai abandonnées
+    env:
+      GH_TOKEN: ${{ github.token }}
+      A_BLANC: ${{ inputs.a_blanc && '1' || '' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: bash scripts/menage.sh
