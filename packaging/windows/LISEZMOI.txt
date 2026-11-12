@@ -1,0 +1,104 @@
+Mouflon pour Windows
+====================
+
+Des moutons qui vivent sur le bureau : ils marchent sur les fenetres,
+broutent, se rencontrent, jouent.
+
+Pour commencer
+--------------
+1. Garde ce dossier entier (Mouflon.exe a besoin du dossier « pets » a cote de lui).
+2. Double-clique sur Mouflon.exe.
+3. L'icone de Mouflon apparait pres de l'horloge (dans la fleche « ^ » si elle
+   est cachee). Un clic dessus ouvre le menu : ajouter des animaux, les
+   reglages, quitter.
+4. Clic droit sur un mouton : son menu a lui (avec « Reglages », « A propos »
+   et « Quitter »). On peut aussi l'attraper a la souris et le lancer.
+
+Pour quitter
+------------
+- « Quitter », dans le menu de l'icone ou dans celui d'un mouton (clic droit) ;
+- ou Ctrl+Alt+Win+Q, depuis n'importe quel programme.
+
+Les autres raccourcis (Ctrl+Alt+Win+N ajoute un mouton, +P met en pause...)
+sont dans les reglages, ou l'on peut aussi les couper.
+
+Plusieurs ecrans
+----------------
+Les moutons vivent sur tous les ecrans (quatre au plus), chacun avec son
+sol. De temps en temps, l'un d'eux change d'ecran tout seul, d'un grand bond
+ou d'un saut. Pour les garder sur l'ecran principal : decoche « Sur tous les
+ecrans » dans les reglages. Lancer Mouflon.exe une seconde fois n'ouvre pas
+un second troupeau : un mouton de plus arrive, tire au hasard.
+
+Si quelque chose ne va pas
+--------------------------
+Double-clique sur « Essai de Mouflon.cmd », dans ce dossier : Mouflon tourne
+vingt secondes avec six moutons, s'arrete tout seul, et le dossier s'ouvre
+sur un fichier, essai-mouflon.txt. Envoie ce fichier a asml@laposte.net (il
+dit quelle carte graphique affiche les moutons, a quelle cadence, et ce qui
+a manque).
+
+Sans cet essai : Mouflon note ce qu'il fait dans un petit fichier,
+journal.txt. Pour le trouver : touche Windows + R, colle la ligne
+ci-dessous, puis Entree.
+
+    %LOCALAPPDATA%\alejandrosanmartinlamas\Mouflon\cache
+
+Si Windows affiche « Windows a protege votre ordinateur » au premier
+lancement : « Informations complementaires », puis « Executer quand meme ».
+(Le programme n'est pas encore signe aupres de Microsoft.)
+
+Il faut Windows 10 ou 11, 64 bits.
+
+--------------------------------------------------------------------------
+
+Mouflon for Windows
+===================
+
+Sheep that live on your desktop: they walk on your windows, graze, meet
+and play.
+
+Getting started
+---------------
+1. Keep this whole folder (Mouflon.exe needs the "pets" folder next to it).
+2. Double-click Mouflon.exe.
+3. Mouflon's icon appears near the clock (inside the "^" arrow if hidden).
+   Click it for the menu: add animals, settings, quit.
+4. Right-click a sheep for its own menu (with "Settings", "About" and
+   "Quit"). You can also grab one with the mouse and throw it.
+
+To quit
+-------
+- "Quit", in the icon's menu or in a sheep's menu (right click);
+- or Ctrl+Alt+Win+Q, from any program.
+
+The other shortcuts (Ctrl+Alt+Win+N adds a sheep, +P pauses...) are listed
+in the settings, where they can also be turned off.
+
+Several displays
+----------------
+The sheep live on all your displays (four at most), each with its own
+floor. Now and then, one of them moves to another display by itself, with a
+great leap or a hop. To keep them on the main display, uncheck "On all
+displays" in the settings. Launching Mouflon.exe a second time does not open
+a second flock: one more sheep arrives, picked at random.
+
+If something goes wrong
+-----------------------
+Double-click "Essai de Mouflon.cmd" in this folder: Mouflon runs for twenty
+seconds with six sheep, stops by itself, and the folder opens on a file,
+essai-mouflon.txt. Send that file to asml@laposte.net (it says which
+graphics card shows the sheep, at what pace, and what was missing).
+
+Without that trial: Mouflon keeps a small log of what it does, journal.txt.
+To find it: Windows key + R, paste the line below, then Enter.
+
+    %LOCALAPPDATA%\alejandrosanmartinlamas\Mouflon\cache
+
+If Windows shows "Windows protected your PC" on first launch: "More info",
+then "Run anyway". (The program is not signed with Microsoft yet.)
+
+Requires Windows 10 or 11, 64-bit.
+
+Mouflon: https://alejandrosml.github.io/Mouflon/
+(c) 2026 Alejandro San Martin Lamas - https://github.com/alejandrosml
