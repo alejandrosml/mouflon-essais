@@ -33,12 +33,14 @@ efface() {
 
 echo "== Les branches d'essai sans nouvelle depuis $JOURS_BRANCHE jours"
 gh api "repos/$R/git/matching-refs/heads/${PREFIXE%/}?per_page=100" \
-    --jq ".[] | select(.ref | startswith(\"refs/heads/$PREFIXE\")) | \"\(.object.sha) \(.ref)\"" | while read -r sha ref; do
+    --jq ".[] | select(.ref | startswith(\"refs/heads/$PREFIXE\")) | \"\(.object.sha) \(.ref | split(\"/\") | map(@uri) | join(\"/\")) \(.ref)\"" | while read -r sha adresse ref; do
     quand="$(gh api "repos/$R/git/commits/$sha" --jq .committer.date)"
     age="$(heures "$quand")"
     if (( age > JOURS_BRANCHE * 24 )); then
         echo "  ${ref#refs/heads/} (dernier état : $quand) : supprimée"
-        efface "git/$ref"
+        # Son adresse, signe par signe : un « # » dans un nom de branche
+        # couperait l'adresse, et c'est une autre branche qui partirait.
+        efface "git/$adresse"
     else
         echo "  ${ref#refs/heads/} (dernier état : $quand) : gardée"
     fi
@@ -50,7 +52,7 @@ echo "== Les passages terminés depuis plus de $HEURES_PASSAGE heures"
 PASSAGES=""
 for page in $(seq 1 100); do
     lot="$(gh api "repos/$R/actions/runs?status=completed&per_page=100&page=$page" \
-        --jq '.workflow_runs[] | [.id, .head_branch, .updated_at, .name] | @tsv')"
+        --jq '.workflow_runs[] | [.id, (.head_branch // "-"), .updated_at, .name] | map(tostring) | join("\u001f")')"
     [[ -n "$lot" ]] || break
     PASSAGES+="$lot"$'\n'
 done
@@ -62,7 +64,9 @@ GARDES=0
 EFFACES=0
 # Du plus récent au plus ancien : le premier passage vu pour une branche et
 # un flux est son dernier.
-while IFS=$'\t' read -r id branche quand flux; do
+# (Les champs sont séparés par un signe qui n'est pas un blanc : un passage
+# sans branche ne décale pas les suivants.)
+while IFS=$'\x1f' read -r id branche quand flux; do
     [[ -n "$id" ]] || continue
     cle="$branche|$flux"
     if [[ -z "${VU[$cle]:-}" && "$BRANCHES" == *"|$branche|"* ]]; then
