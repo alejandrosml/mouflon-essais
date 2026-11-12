@@ -1,0 +1,477 @@
+# Texel : un bélier néerlandais de trois ans, 72 cm au garrot osseux,
+# en toison courte de fin d’été (docs/races/texel.md).
+# Tous les comportements du Mannequin sont conservés. Les fréquences,
+# durées et contagions suivent la fiche (§ 8) : calme, docile, rustique,
+# peu grégaire ; pas court et posé, longues plages de pâturage et de repos.
+# Le trot, le galop et les jeux restent possibles, mais peu fréquents.
+# Ces réglages traduisent les observations de la fiche, sans prétendre
+# à des mesures expérimentales propres à la race.
+
+[pet]
+# Trois brebis pour un bélier ; chacun porte le dessin de son sexe, et
+# l'agneau le sien.
+sex = { male = 0.25 }
+id = "texel"
+name = "Texel"
+author = "Alejandro San Martin Lamas"
+description = "Le Texel néerlandais : massif, dos plat, gigots ronds, toison crème serrée, tête blanche et nue au nez noir, petites oreilles horizontales, sans cornes. Calme, rustique, il pâture volontiers à l’écart."
+version = "0.1.0"
+license = "MIT OR Apache-2.0"
+category = "sheep"
+region = "europe"
+
+[appearance]
+# 1 unité = 1 cm ; 72 cm au garrot osseux, 77 cm avec la toison.
+# L’affichage mesure 0,5 point par centimètre.
+rig = "texel.svg"
+height = 38.5
+
+# Brebis Texel : 68 cm au garrot, tête et encolure plus fines, mamelle.
+[appearance.female]
+rig = "texel-brebis.svg"
+height = 36.386
+width = 58.661
+stride = 29.467
+
+# Agneau Texel de deux semaines : 41 cm au garrot, blanc, tête nue au nez noir.
+[appearance.lamb]
+rig = "texel-agneau.svg"
+height = 22.972
+width = 30.684
+stride = 20.345
+
+[physics]
+# Environ 124,8 cm du nez au bout de la queue, à demi-échelle ; pattes
+# de 39 cm depuis l’épaule : stride = 1,6 × 39 × 0,5.
+width = 62.4
+stride = 31.2
+
+# Sons du Mannequin, domaine public (voir CREDITS.md), copiés à l’identique.
+# Aucune source ne décrit une voix propre au Texel ; aucune sonnaille.
+[sounds]
+bele = { files = ["sons/mouton-1.mp3", "sons/mouton-2.mp3", "sons/mouton-3.mp3", "sons/mouton-4.mp3"], lamb = ["sons/agneau-1.mp3"], volume = 0.7, mouth = true }
+broute = { files = ["sons/broute-1.mp3", "sons/broute-2.mp3"], volume = 0.5 }
+pose = { files = ["sons/pose-1.mp3", "sons/pose-2.mp3"], volume = 0.5 }
+
+[reflexes]
+spawn = "fall"
+fall = "fall"
+land = [{ to = "land", weight = 1 }]
+land_hard = "land_hard"
+held = "held"
+thrown = "fall"
+edge = [{ to = "turn", weight = 8 }, { to = "hop_down", weight = 1 }, { to = "leap", weight = 1 }]
+wall = "turn"
+# Docile : le clic lui fait surtout regarder, renifler ou bêler.
+poke = [
+    { to = "look", weight = 5 },
+    { to = "sniff", weight = 2 },
+    { to = "bleat", weight = 2 },
+    { to = "hop", weight = 0.5 },
+    { to = "stamp", weight = 1, when = "rowdy" },
+]
+# Une fenêtre plus haute, toute proche : sauter sur son rebord s'il est à
+# portée (sinon, le moteur ne le propose pas), ou faire demi-tour.
+window_side = [{ to = "turn", weight = 4 }, { to = "leap", weight = 1 }]
+# Peu grégaire : il inspecte un voisin, sans chercher à le suivre.
+meet = [
+    { to = "sniff", weight = 4 },
+    { to = "look", weight = 1 },
+    { to = "bleat", weight = 1 },
+    { to = "play_back", weight = 1, when = "lively" },
+]
+together = "look"
+leave = "walk"
+# L’alarme commence par le regard ; la fuite reste brève et peu contagieuse.
+startle = [
+    { to = "look", weight = 6 },
+    { to = "stamp", weight = 1 },
+    { to = "run", weight = 1 },
+]
+sleepy = "yawn"
+wake = [{ to = "stretch", weight = 3 }, { to = "sit", weight = 1 }]
+wind = [{ to = "turn_away", weight = 4, when = "into_wind" }, { to = "brace", weight = 1 }]
+
+# Bélier calme : pâturage et repos dominent ; les jeux restent occasionnels.
+[[behavior]]
+name = "stand"
+motion = "stand"
+duration = [2.5, 6.0]
+next = [
+    { to = "walk", weight = 4 },
+    { to = "graze", weight = 10 },
+    { to = "look", weight = 3 },
+    { to = "sit", weight = 4 },
+    { to = "trot", weight = 1 },
+    { to = "shake", weight = 1 },
+    { to = "scratch", weight = 1 },
+    { to = "bleat", weight = 1 },
+    { to = "look", weight = 4, when = "cursor_near:220" },
+    { to = "paw", weight = 1, when = "rowdy" },
+    { to = "pronk", weight = 0.3, when = "lively" },
+    { to = "gambol", weight = 0.3, when = "lively" },
+    { to = "pivot", weight = 0.2, when = "lively" },
+    { to = "race", weight = 0.2, when = "lively" },
+    { to = "race", weight = 0.5, when = ["lively", "evening"] },
+    { to = "trot", weight = 0.5, when = "lively" },
+    { to = "ruminate", weight = 5, when = "calm" },
+    { to = "yawn", weight = 1, when = "calm" },
+]
+
+# Race d’herbage au faible instinct grégaire : il broute longtemps à l’écart.
+[[behavior]]
+name = "graze"
+motion = "graze"
+duration = [8.0, 18.0]
+sound = { name = "broute", chance = 0.35 }
+next = [
+    { to = "stand", weight = 2 },
+    { to = "walk", weight = 4 },
+    { to = "look", weight = 1 },
+    { to = "sit", weight = 2 },
+    { to = "scratch", weight = 1 },
+    { to = "look", weight = 3, when = "cursor_near:220" },
+]
+
+# La vigilance existe, mais se transmet peu entre des animaux dispersés.
+[[behavior]]
+name = "look"
+motion = "look"
+duration = [1.5, 3.5]
+contagious = 0.08
+next = [
+    { to = "stand", weight = 3 },
+    { to = "walk", weight = 2 },
+    { to = "graze", weight = 4 },
+    { to = "sit", weight = 1 },
+    { to = "bleat", weight = 1 },
+]
+
+# Pas court et posé du bélier lourd ; vitesses rapportées au stride de 31,2.
+[[behavior]]
+name = "walk"
+motion = "walk"
+speed = 46.1
+duration = [2.5, 7.0]
+contagious = 0.06
+next = [
+    { to = "stand", weight = 4 },
+    { to = "graze", weight = 5 },
+    { to = "look", weight = 2 },
+    { to = "turn", weight = 2 },
+    { to = "sit", weight = 1 },
+    { to = "trot", weight = 1 },
+]
+
+# Quelques mètres pour rejoindre ; une allure transitoire.
+[[behavior]]
+name = "trot"
+motion = "walk"
+speed = 82.7
+duration = [1.5, 3.0]
+next = [{ to = "walk", weight = 5 }, { to = "stand", weight = 2 }, { to = "run", weight = 1 }]
+
+# Galop bref en cas d’alarme ; il revient vite au calme.
+[[behavior]]
+name = "run"
+motion = "run"
+speed = 151.3
+duration = [0.8, 1.6]
+contagious = 0.15
+next = [{ to = "stand", weight = 3 }, { to = "walk", weight = 2 }, { to = "look", weight = 2 }]
+
+[[behavior]]
+name = "turn"
+motion = "turn"
+duration = 0.35
+next = [{ to = "walk", weight = 3 }, { to = "stand", weight = 2 }]
+
+# Repos sur le sternum, pattes repliées, puis longue rumination.
+[[behavior]]
+name = "sit"
+motion = "sit"
+duration = [7.0, 18.0]
+next = [
+    { to = "stand", weight = 2 },
+    { to = "stretch", weight = 2 },
+    { to = "ruminate", weight = 5 },
+    { to = "sleep", weight = 2 },
+    { to = "sleep", weight = 6, when = "night" },
+    { to = "sleep", weight = 12, when = "away" },
+]
+
+# Il rumine sans se presser, à l’écart ou près du groupe.
+[[behavior]]
+name = "ruminate"
+motion = "sit"
+chew = true
+duration = [14.0, 32.0]
+next = [
+    { to = "sit", weight = 2 },
+    { to = "stretch", weight = 2 },
+    { to = "stand", weight = 1 },
+    { to = "sleep", weight = 1 },
+    { to = "sleep", weight = 8, when = "away" },
+]
+
+[[behavior]]
+name = "sleep"
+motion = "sleep"
+duration = [25.0, 60.0]
+next = [{ to = "sit", weight = 1 }]
+
+[[behavior]]
+name = "hop"
+motion = "jump"
+jump = [65.0, 402.0]
+duration = "forever"
+
+[[behavior]]
+name = "hop_down"
+motion = "jump"
+jump = [106.0, 239.0]
+duration = "forever"
+
+# Sauter sur une fenêtre plus haute, toute proche, comme un mouflon sur un
+# rocher (docs/animation-animale.md, « Sauter sur un rebord plus haut »). Une
+# race de plaine, lourde, qui saute peu. Portée : 1,8 longueur de patte, soit
+# 70 cm (une fois sa hauteur au garrot, 72 cm). Le saut : mesurer le rebord
+# du regard, reculer pour prendre son élan si besoin, se ramasser, bondir.
+[[behavior]]
+name = "leap"
+motion = "leap"
+reach = 1.8
+duration = "forever"
+on_land = "leap_land"
+
+# La réception, sabots plantés ; puis repartir sur le rebord, ou regarder
+# autour de soi.
+[[behavior]]
+name = "leap_land"
+motion = "stand"
+duration = 0.3
+sound = { name = "pose", chance = 0.6 }
+next = [{ to = "walk", weight = 3 }, { to = "look", weight = 2 }]
+
+[[behavior]]
+name = "pronk"
+motion = "pronk"
+duration = "forever"
+contagious = 0.08
+
+# Les jeux d’agneaux restent présents chez un actif, rarement enchaînés.
+[[behavior]]
+name = "gambol"
+motion = "pronk"
+twist = true
+jump = [35.5, 369.5]
+duration = "forever"
+contagious = 0.08
+on_land = [
+    { to = "land", weight = 6 },
+    { to = "gambol", weight = 1 },
+    { to = "pivot", weight = 1 },
+    { to = "race", weight = 1 },
+]
+
+[[behavior]]
+name = "pivot"
+motion = "pronk"
+spin = true
+jump = [0.0, 293.5]
+duration = "forever"
+on_land = [{ to = "land", weight = 4 }, { to = "gambol", weight = 1 }, { to = "race", weight = 1 }]
+
+[[behavior]]
+name = "race"
+motion = "run"
+speed = 141.8
+duration = [0.8, 1.5]
+contagious = 0.08
+on_edge = "race_turn"
+on_wall = "race_turn"
+next = [{ to = "race_turn", weight = 1 }, { to = "gambol", weight = 1 }, { to = "stand", weight = 4 }]
+
+[[behavior]]
+name = "race_turn"
+motion = "turn"
+duration = 0.35
+next = [{ to = "race", weight = 1 }, { to = "stand", weight = 3 }]
+
+# Bélier sans cornes : quelques pas en arrière avant les coups de front.
+[[behavior]]
+name = "play_back"
+motion = "back"
+speed = 27.2
+duration = 1.1
+next = "play_lunge"
+
+[[behavior]]
+name = "play_lunge"
+motion = "charge"
+speed = 113.5
+duration = 0.7
+on_meet = "play_butt"
+next = [{ to = "stand", weight = 2 }, { to = "gambol", weight = 1 }]
+
+[[behavior]]
+name = "play_butt"
+motion = "stand"
+duration = [0.4, 0.7]
+sound = { name = "pose", chance = 0.7 }
+next = [
+    { to = "shake", weight = 2 },
+    { to = "gambol", weight = 1 },
+    { to = "pivot", weight = 1 },
+    { to = "stand", weight = 4 },
+]
+
+[[behavior]]
+name = "play_invite"
+motion = "invite"
+duration = 1.4
+next = [{ to = "stand", weight = 2 }, { to = "gambol", weight = 1 }, { to = "look", weight = 1 }]
+
+[[behavior]]
+name = "fall"
+motion = "fall"
+duration = "forever"
+
+[[behavior]]
+name = "land"
+motion = "land"
+duration = 0.35
+sound = { name = "pose", chance = 0.6 }
+next = [{ to = "stand", weight = 5 }, { to = "look", weight = 2 }, { to = "shake", weight = 1 }]
+
+[[behavior]]
+name = "land_hard"
+motion = "land"
+duration = 0.9
+sound = [{ name = "pose" }, { name = "bele", chance = 0.4 }]
+next = [{ to = "daze", weight = 3 }, { to = "look", weight = 1 }, { to = "shake", weight = 1 }]
+
+[[behavior]]
+name = "held"
+motion = "held"
+duration = "forever"
+sound = { name = "bele", chance = 0.4 }
+
+[[behavior]]
+name = "shake"
+motion = "shake"
+duration = 0.9
+next = [{ to = "stand", weight = 2 }, { to = "walk", weight = 2 }, { to = "graze", weight = 1 }]
+
+[[behavior]]
+name = "stretch"
+motion = "stretch"
+duration = 2.4
+next = [{ to = "shake", weight = 2 }, { to = "stand", weight = 2 }, { to = "walk", weight = 2 }, { to = "graze", weight = 1 }]
+
+[[behavior]]
+name = "scratch"
+motion = "scratch"
+duration = [1.4, 2.4]
+next = [{ to = "stand", weight = 2 }, { to = "graze", weight = 2 }, { to = "shake", weight = 1 }]
+
+[[behavior]]
+name = "yawn"
+motion = "yawn"
+duration = 1.6
+contagious = 0.08
+next = [
+    { to = "stand", weight = 3 },
+    { to = "look", weight = 1 },
+    { to = "sit", weight = 1 },
+    { to = "sit", weight = 12, when = "away" },
+]
+
+[[behavior]]
+name = "bleat"
+motion = "bleat"
+duration = 0.85
+sound = "bele"
+next = [{ to = "stand", weight = 2 }, { to = "walk", weight = 2 }, { to = "look", weight = 1 }]
+
+[[behavior]]
+name = "sniff"
+motion = "sniff"
+duration = [1.0, 1.8]
+next = [
+    { to = "stand", weight = 2 },
+    { to = "walk", weight = 2 },
+    { to = "graze", weight = 1 },
+    { to = "bleat", weight = 1 },
+    { to = "flehmen", weight = 1 },
+    { to = "flehmen", weight = 2, when = "rowdy" },
+]
+
+# Après avoir flairé, le bélier retrousse la lèvre sur le bourrelet dentaire.
+[[behavior]]
+name = "flehmen"
+motion = "flehmen"
+duration = [7.0, 12.0]
+next = [{ to = "stand", weight = 2 }, { to = "walk", weight = 2 }, { to = "bleat", weight = 1 }]
+
+[[behavior]]
+name = "stamp"
+motion = "stamp"
+duration = 0.9
+next = [
+    { to = "look", weight = 2 },
+    { to = "stand", weight = 1 },
+    { to = "run", weight = 1 },
+    { to = "paw", weight = 2, when = "rowdy" },
+]
+
+# Docile : il renonce souvent, même après avoir gratté le sol.
+[[behavior]]
+name = "paw"
+motion = "paw"
+duration = [1.1, 2.2]
+next = [{ to = "back_up", weight = 3 }, { to = "charge", weight = 1 }, { to = "stand", weight = 5 }]
+
+# La charge est courte ; le cabré du modèle reste possible, mais rare.
+[[behavior]]
+name = "back_up"
+motion = "back"
+speed = 33.1
+duration = [0.8, 1.3]
+next = [
+    { to = "rear", weight = 1 },
+    { to = "charge", weight = 3 },
+    { to = "charge", weight = 3, when = "rowdy" },
+]
+
+[[behavior]]
+name = "rear"
+motion = "rear"
+duration = 1.15
+next = "charge"
+
+[[behavior]]
+name = "charge"
+motion = "charge"
+speed = 171.4
+duration = [0.6, 1.0]
+next = [{ to = "stand", weight = 2 }, { to = "shake", weight = 1 }, { to = "walk", weight = 1 }]
+
+[[behavior]]
+name = "daze"
+motion = "daze"
+duration = [1.6, 2.6]
+next = [{ to = "shake", weight = 3 }, { to = "stand", weight = 1 }]
+
+[[behavior]]
+name = "turn_away"
+motion = "turn"
+duration = 0.35
+next = "brace"
+
+# Rustique, conduit au grand air : il tourne le dos au vent et se tasse.
+[[behavior]]
+name = "brace"
+motion = "brace"
+duration = [3.0, 6.0]
+next = [{ to = "shake", weight = 2 }, { to = "stand", weight = 2 }, { to = "walk", weight = 1 }]
