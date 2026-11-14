@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>Mouflon</string>
+    <key>CFBundleDisplayName</key>
+    <string>Mouflon</string>
+    <key>CFBundleIdentifier</key>
+    <string>@BUNDLE_ID@</string>
+    <key>CFBundleExecutable</key>
+    <string>mouflon</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>@VERSION@</string>
+    <key>CFBundleVersion</key>
+    <string>@BUILD@</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
+    <!-- Mouflon suit la langue de macOS : anglais (par défaut), français, espagnol. -->
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
+    <key>CFBundleLocalizations</key>
+    <array>
+        <string>en</string>
+        <string>fr</string>
+        <string>es</string>
+        <string>de</string>
+        <string>it</string>
+        <string>nl</string>
+        <string>pt</string>
+        <string>pt-PT</string>
+        <string>ru</string>
+        <string>ja</string>
+        <string>ko</string>
+        <string>zh-Hans</string>
+        <string>zh-Hant</string>
+    </array>
+    <key>LSMinimumSystemVersion</key>
+    <string>@MIN_MACOS@</string>
+    <key>LSApplicationCategoryType</key>
+    <string>public.app-category.entertainment</string>
+    <!-- Application de barre des menus : pas d'icône dans le Dock ni dans ⌘-Tab. -->
+    <key>LSUIElement</key>
+    <true/>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+    <!-- Aucun chiffrement : évite la question à chaque envoi sur l'App Store. -->
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
+    <key>NSHumanReadableCopyright</key>
+    <string>© 2026 Alejandro San Martin Lamas — MIT OR Apache-2.0</string>
+</dict>
+</plist>

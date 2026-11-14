@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=Mouflon
+GenericName=Desktop companions
+GenericName[fr]=Compagnons de bureau
+Comment=Sheep that live on your desktop and walk on your windows
+Comment[fr]=Des moutons qui vivent sur le bureau et marchent sur les fenêtres
+Exec=mouflon
+Icon=mouflon
+Terminal=false
+Categories=Amusement;Utility;
+Keywords=sheep;desktop;pet;mouton;
+StartupNotify=false

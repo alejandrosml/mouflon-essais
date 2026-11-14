@@ -1,0 +1,532 @@
+# Jacob : un bélier de Jacob à quatre cornes, dessiné en vecteurs d'après la
+# fiche de la race (standards de la JSBA et de la Jacob Sheep Society). Les
+# comportements partent de ceux du Mannequin, réglés pour cette race : vive,
+# aux aguets, curieuse, agile comme une chèvre, peu grégaire (voir
+# docs/animation-animale.md pour les durées et les fréquences).
+
+[pet]
+# Trois brebis pour un bélier ; chacun porte le dessin de son sexe, et
+# l'agneau le sien.
+sex = { male = 0.25 }
+id = "jacob"
+name = "Jacob"
+author = "Alejandro San Martin Lamas"
+description = "Le mouton de Jacob, vieille race pie des parcs anglais : quatre cornes noires annelées, plus fines chez la brebis, tête de blaireau au chanfrein blanc, toison blanche tachée de noir aux pointes brûlées par le soleil."
+version = "0.1.0"
+license = "MIT OR Apache-2.0"
+category = "sheep"     # sa famille : tous les moutons ensemble (et ils s'imitent)
+region = "british-isles"
+
+[appearance]
+rig = "jacob.svg"
+height = 55.2          # hauteur affichée, cornes comprises : 75 cm au garrot à 0,5 pt par cm,
+                       # le dessin entier mesurant 1,47 fois sa hauteur au garrot
+
+# Agneau de Jacob de deux semaines : 40 cm au garrot, déjà pie, sans cornes (de simples bourgeons).
+[appearance.lamb]
+rig = "jacob-agneau.svg"
+height = 26.729
+width = 29.415
+stride = 22.485
+
+# Brebis de Jacob à quatre cornes : 67 cm au garrot, cornes fines et courtes, tête et encolure plus fines, petite mamelle.
+[appearance.female]
+rig = "jacob-brebis.svg"
+height = 45.107
+width = 54.208
+stride = 34.304
+
+[physics]
+width = 57.1           # du bout du nez à la fesse, sans les cornes (114 cm)
+stride = 37.9          # 1,6 × la longueur des pattes (23,7 pt), sans glisser
+
+# Les sons (domaine public, voir CREDITS.md). `mouth = true` : c'est sa voix,
+# il ouvre la bouche en la faisant entendre. Un Jacob adulte bêle peu.
+[sounds]
+bele = { files = ["sons/mouton-1.mp3", "sons/mouton-2.mp3", "sons/mouton-3.mp3", "sons/mouton-4.mp3"], lamb = ["sons/agneau-1.mp3"], volume = 0.65, mouth = true }
+broute = { files = ["sons/broute-1.mp3", "sons/broute-2.mp3"], volume = 0.5 }
+pose = { files = ["sons/pose-1.mp3", "sons/pose-2.mp3"], volume = 0.5 }
+
+# Les réflexes : ce qu'il fait quand quelque chose lui arrive. `when` choisit
+# selon les circonstances ou le tempérament (calm, lively, rowdy, even).
+[reflexes]
+spawn = "fall"
+fall = "fall"
+land = [{ to = "land", weight = 1 }]
+land_hard = "land_hard"
+held = "held"
+thrown = "fall"
+# Agile, il saute volontiers d'un rebord plutôt que de faire demi-tour.
+edge = [{ to = "turn", weight = 3 }, { to = "hop_down", weight = 2 }, { to = "leap", weight = 3 }]
+wall = "turn"
+poke = [
+    { to = "hop", weight = 2 },
+    { to = "look", weight = 2 },
+    { to = "stamp", weight = 2 },
+    { to = "bleat", weight = 1 },
+    { to = "stamp", weight = 3, when = "rowdy" },
+]
+# Une fenêtre plus haute, toute proche : sauter sur son rebord s'il est à
+# portée (sinon, le moteur ne le propose pas), ou faire demi-tour.
+window_side = [{ to = "turn", weight = 2 }, { to = "leap", weight = 3 }]
+# Deux moutons qui se croisent se reniflent le museau ; deux béliers vifs
+# jouent souvent à se cogner le front (voir `play_back`).
+meet = [
+    { to = "sniff", weight = 4 },
+    { to = "look", weight = 2 },
+    { to = "bleat", weight = 0.5 },
+    { to = "play_back", weight = 4, when = "lively" },
+    { to = "play_back", weight = 2, when = "rowdy" },
+]
+together = "pronk"     # tous ensemble : des sauts d'agneau
+leave = "hop"
+# Le pointeur file tout près : il lève la tête, tape du pied (l'alarme), ou
+# détale ; les Jacob peu habitués à l'homme sont craintifs.
+startle = [
+    { to = "look", weight = 3 },
+    { to = "stamp", weight = 3 },
+    { to = "hop", weight = 1 },
+    { to = "run", weight = 2 },
+]
+# L'utilisateur est parti : il bâille, se couche, s'endort.
+sleepy = "yawn"
+# Il revient : il se lève et s'étire, comme un mouton qui se relève.
+wake = [{ to = "stretch", weight = 3 }, { to = "sit", weight = 1 }]
+# Un coup de vent : il tourne le dos au vent (s'il l'a dans le museau), puis
+# se protège, tête basse. Race rustique : il ne s'en émeut guère.
+wind = [{ to = "turn_away", weight = 4, when = "into_wind" }, { to = "brace", weight = 1 }, { to = "look", weight = 1 }]
+
+[[behavior]]
+name = "stand"
+motion = "stand"
+duration = [1.5, 4.0]
+next = [
+    { to = "walk", weight = 6 },
+    { to = "graze", weight = 5 },
+    { to = "look", weight = 4 },
+    { to = "sit", weight = 2 },
+    { to = "trot", weight = 1 },
+    { to = "run", weight = 1 },
+    { to = "hop", weight = 1.5 },
+    { to = "shake", weight = 1 },
+    { to = "scratch", weight = 1 },
+    { to = "bleat", weight = 0.5 },
+    { to = "look", weight = 5, when = "cursor_near:220" },
+    # Selon son tempérament : un énervé gratte le sol avant de foncer, un
+    # actif joue comme un agneau (sauts raides ou tordus, demi-tours en
+    # l'air, courses), un calme se couche pour ruminer.
+    { to = "paw", weight = 4, when = "rowdy" },
+    { to = "pronk", weight = 2, when = "lively" },
+    { to = "gambol", weight = 2, when = "lively" },
+    { to = "pivot", weight = 1, when = "lively" },
+    { to = "race", weight = 1, when = "lively" },
+    { to = "race", weight = 2, when = ["lively", "evening"] },   # les agneaux courent surtout le soir
+    { to = "trot", weight = 2, when = "lively" },
+    { to = "ruminate", weight = 3, when = "calm" },
+    { to = "yawn", weight = 1, when = "calm" },
+]
+
+# Broute : la tête descend au sol, une bouchée par seconde ; de temps en
+# temps, un pas en avant vers l'herbe suivante, sans lever la tête. Il relève
+# souvent la tête pour surveiller (il est aux aguets).
+[[behavior]]
+name = "graze"
+motion = "graze"
+duration = [5.0, 14.0]
+sound = { name = "broute", chance = 0.35 }
+next = [
+    { to = "stand", weight = 2 },
+    { to = "walk", weight = 3 },
+    { to = "look", weight = 2 },
+    { to = "scratch", weight = 1 },
+    { to = "look", weight = 4, when = "cursor_near:220" },
+]
+
+# Aux aguets : la tête haute, il fixe. L'alerte se propage : un voisin qui le
+# voit lever la tête la lève souvent aussi (`contagious`).
+[[behavior]]
+name = "look"
+motion = "look"
+duration = [2.0, 4.5]
+contagious = 0.3
+next = [
+    { to = "stand", weight = 3 },
+    { to = "walk", weight = 3 },
+    { to = "graze", weight = 2 },
+    { to = "sit", weight = 1 },
+    { to = "stamp", weight = 0.5 },
+    { to = "bleat", weight = 0.5 },
+]
+
+# Il marche ; un Jacob suit moins le troupeau que d'autres moutons (il
+# préfère être mené que poussé) : ses voisins l'imitent moins souvent.
+[[behavior]]
+name = "walk"
+motion = "walk"
+speed = 58.0
+duration = [3.0, 9.0]
+contagious = 0.15
+next = [
+    { to = "stand", weight = 4 },
+    { to = "graze", weight = 3 },
+    { to = "look", weight = 3 },
+    { to = "turn", weight = 2 },
+    { to = "sit", weight = 1 },
+    { to = "trot", weight = 1.5 },
+    { to = "run", weight = 1 },
+]
+
+# Au trot, les pattes vont par paires diagonales (le moteur choisit
+# l'allure d'après la vitesse rapportée à la longueur des pattes).
+[[behavior]]
+name = "trot"
+motion = "walk"
+speed = 103.0
+duration = [2.0, 5.0]
+next = [{ to = "walk", weight = 3 }, { to = "stand", weight = 2 }, { to = "run", weight = 1 }]
+
+# Au galop : le galop transverse des moutons. Dérangés, les Jacob se
+# regroupent et filent ensemble derrière un meneur.
+[[behavior]]
+name = "run"
+motion = "run"
+speed = 195.0
+duration = [1.2, 2.8]
+contagious = 0.5
+next = [{ to = "stand", weight = 2 }, { to = "look", weight = 2 }, { to = "walk", weight = 2 }, { to = "trot", weight = 1 }]
+
+[[behavior]]
+name = "turn"
+motion = "turn"
+duration = 0.35
+next = [{ to = "walk", weight = 3 }, { to = "stand", weight = 2 }]
+
+# Couché sur le sternum : l'avant se plie d'abord, les pattes se replient
+# sous la toison ; il se relève l'arrière d'abord, et s'étire souvent.
+[[behavior]]
+name = "sit"
+motion = "sit"
+duration = [4.0, 10.0]
+next = [
+    { to = "stand", weight = 3 },
+    { to = "stretch", weight = 2 },
+    { to = "ruminate", weight = 3 },
+    { to = "sleep", weight = 2 },
+    { to = "sleep", weight = 6, when = "night" },
+    { to = "sleep", weight = 12, when = "away" },
+]
+
+# Il rumine, couché : il mâche un bol, l'avale, une pause, le suivant.
+[[behavior]]
+name = "ruminate"
+motion = "sit"
+chew = true
+duration = [10.0, 24.0]
+next = [
+    { to = "sit", weight = 2 },
+    { to = "stretch", weight = 2 },
+    { to = "stand", weight = 1 },
+    { to = "sleep", weight = 1 },
+    { to = "sleep", weight = 8, when = "away" },
+]
+
+# Il dort, couché ; une fois sur deux, la tête posée au sol, le cou tendu.
+# De temps en temps, une oreille ou une patte tressaille.
+[[behavior]]
+name = "sleep"
+motion = "sleep"
+duration = [20.0, 50.0]
+next = [{ to = "sit", weight = 1 }]
+
+# Un bond : agile et léger, le Jacob saute haut (il franchit les clôtures).
+[[behavior]]
+name = "hop"
+motion = "jump"
+jump = [90.0, 460.0]
+duration = "forever"
+
+[[behavior]]
+name = "hop_down"
+motion = "jump"
+jump = [140.0, 250.0]
+duration = "forever"
+
+# Sauter sur une fenêtre plus haute, toute proche, comme un mouflon sur un
+# rocher (docs/animation-animale.md, « Sauter sur un rebord plus haut »). Une
+# race de colline ou de montagne, sûre de pied, qui franchit les murets.
+# Portée : 2,4 longueurs de patte, soit 114 cm (1,5 fois sa hauteur au
+# garrot, 75 cm). Le saut : mesurer le rebord du regard, reculer pour prendre
+# son élan si besoin, se ramasser, bondir.
+[[behavior]]
+name = "leap"
+motion = "leap"
+reach = 2.4
+duration = "forever"
+on_land = "leap_land"
+
+# La réception, sabots plantés ; puis repartir sur le rebord, ou regarder
+# autour de soi.
+[[behavior]]
+name = "leap_land"
+motion = "stand"
+duration = 0.3
+sound = { name = "pose", chance = 0.6 }
+next = [{ to = "walk", weight = 3 }, { to = "look", weight = 2 }]
+
+# Saut d'agneau : droit en l'air, les quatre pattes raides, la tête qui
+# secoue. Les autres s'y mettent souvent.
+[[behavior]]
+name = "pronk"
+motion = "pronk"
+jump = [30.0, 440.0]
+duration = "forever"
+contagious = 0.3
+
+# --- Les jeux d'agneaux, surtout chez les actifs (voir
+# docs/animation-animale.md) : il se ramasse, puis bondit.
+
+# Saut tordu : en l'air, le corps se tord, la tête part de l'autre côté, les
+# pattes de derrière ruent (`twist`). Il en enchaîne souvent plusieurs.
+[[behavior]]
+name = "gambol"
+motion = "pronk"
+twist = true
+jump = [55.0, 400.0]
+duration = "forever"
+contagious = 0.3
+on_land = [
+    { to = "land", weight = 3 },
+    { to = "gambol", weight = 2 },
+    { to = "pivot", weight = 1 },
+    { to = "race", weight = 1 },
+]
+
+# Un petit bond sur place, en se retournant en l'air (`spin`).
+[[behavior]]
+name = "pivot"
+motion = "pronk"
+spin = true
+jump = [0.0, 320.0]
+duration = "forever"
+on_land = [{ to = "land", weight = 2 }, { to = "gambol", weight = 1 }, { to = "race", weight = 1 }]
+
+# La course : ils filent en bande jusqu'au bout, font demi-tour et
+# reviennent.
+[[behavior]]
+name = "race"
+motion = "run"
+speed = 183.0
+duration = [1.2, 2.2]
+contagious = 0.5
+on_edge = "race_turn"
+on_wall = "race_turn"
+next = [{ to = "race_turn", weight = 3 }, { to = "gambol", weight = 1 }, { to = "stand", weight = 1 }]
+
+[[behavior]]
+name = "race_turn"
+motion = "turn"
+duration = 0.35
+next = [{ to = "race", weight = 2 }, { to = "stand", weight = 1 }]
+
+# Coups de front : deux béliers qui se croisent reculent ensemble (une durée
+# fixe, pour repartir en même temps), s'élancent et se cognent le front, à la
+# base des cornes du haut ; l'élan prévoit la rencontre (`on_meet`), le choc
+# les tasse tous les deux.
+[[behavior]]
+name = "play_back"
+motion = "back"
+speed = 34.0
+duration = 1.1
+next = "play_lunge"
+
+[[behavior]]
+name = "play_lunge"
+motion = "charge"
+speed = 144.0
+duration = 0.8
+on_meet = "play_butt"
+next = [{ to = "stand", weight = 2 }, { to = "gambol", weight = 1 }]
+
+[[behavior]]
+name = "play_butt"
+motion = "stand"
+duration = [0.4, 0.7]
+sound = { name = "pose", chance = 0.7 }
+next = [
+    { to = "shake", weight = 2 },
+    { to = "gambol", weight = 2 },
+    { to = "pivot", weight = 1 },
+    { to = "stand", weight = 1 },
+]
+
+# L'invitation au jeu : il fixe un autre mouton, la tête et l'avant baissés,
+# en sautillant. Le moteur la propose de lui-même, surtout aux actifs, quand
+# un voisin de la famille est à deux ou trois longueurs ; l'autre accepte
+# souvent, et ils s'élancent l'un vers l'autre (`play_lunge`).
+[[behavior]]
+name = "play_invite"
+motion = "invite"
+duration = 1.4
+next = [{ to = "stand", weight = 2 }, { to = "gambol", weight = 1 }, { to = "look", weight = 1 }]
+
+[[behavior]]
+name = "fall"
+motion = "fall"
+duration = "forever"
+
+[[behavior]]
+name = "land"
+motion = "land"
+duration = 0.35
+sound = { name = "pose", chance = 0.6 }
+next = [{ to = "stand", weight = 5 }, { to = "look", weight = 3 }, { to = "shake", weight = 1 }]
+
+# Atterri rudement : un peu sonné, puis il s'ébroue.
+[[behavior]]
+name = "land_hard"
+motion = "land"
+duration = 0.9
+sound = [{ name = "pose" }, { name = "bele", chance = 0.3 }]
+next = [{ to = "daze", weight = 3 }, { to = "look", weight = 1 }, { to = "shake", weight = 1 }]
+
+[[behavior]]
+name = "held"
+motion = "held"
+duration = "forever"
+sound = { name = "bele", chance = 0.4 }
+
+# --- Les gestes sur place. Le moteur les anime de lui-même (voir
+# docs/format.md) ; `duration` dit combien de temps ils durent.
+
+# S'ébroue : la secousse part de la tête et file jusqu'à la queue, six fois
+# par seconde.
+[[behavior]]
+name = "shake"
+motion = "shake"
+duration = 0.9
+next = [{ to = "stand", weight = 2 }, { to = "walk", weight = 2 }, { to = "graze", weight = 1 }]
+
+# S'étire en se levant : le cou tendu, puis une patte arrière loin derrière.
+[[behavior]]
+name = "stretch"
+motion = "stretch"
+duration = 2.4
+next = [{ to = "shake", weight = 2 }, { to = "stand", weight = 2 }, { to = "walk", weight = 2 }, { to = "graze", weight = 1 }]
+
+# Se gratte d'un sabot arrière.
+[[behavior]]
+name = "scratch"
+motion = "scratch"
+duration = [1.4, 2.4]
+next = [{ to = "stand", weight = 2 }, { to = "graze", weight = 2 }, { to = "shake", weight = 1 }]
+
+# Bâille : la tête se lève, la bouche s'ouvre grand, les yeux se ferment.
+# Contagieux, comme chez nous. L'utilisateur parti, il va se coucher.
+[[behavior]]
+name = "yawn"
+motion = "yawn"
+duration = 1.6
+contagious = 0.15
+next = [
+    { to = "stand", weight = 3 },
+    { to = "look", weight = 1 },
+    { to = "sit", weight = 1 },
+    { to = "sit", weight = 12, when = "away" },
+]
+
+# Bêle, la bouche ouverte (rarement : un Jacob adulte est discret).
+[[behavior]]
+name = "bleat"
+motion = "bleat"
+duration = 0.85
+sound = "bele"
+next = [{ to = "stand", weight = 2 }, { to = "walk", weight = 2 }, { to = "look", weight = 1 }]
+
+# Renifle, le museau tendu (deux moutons qui se rencontrent) ; curieux, il
+# renifle longtemps.
+[[behavior]]
+name = "sniff"
+motion = "sniff"
+duration = [1.2, 2.2]
+next = [
+    { to = "stand", weight = 2 },
+    { to = "walk", weight = 2 },
+    { to = "graze", weight = 1 },
+    { to = "look", weight = 1 },
+    { to = "bleat", weight = 0.5 },
+    { to = "flehmen", weight = 1.5 },
+]
+
+# Le bélier, en rut, flaire une brebis puis fait son flehmen : l'encolure
+# tendue, la tête relevée, la lèvre supérieure retroussée, quelques secondes.
+[[behavior]]
+name = "flehmen"
+motion = "flehmen"
+duration = [7.0, 12.0]   # 7 à 19 s en moyenne chez de jeunes béliers (Bahadi 2023) : le bas, pour un bureau
+next = [{ to = "stand", weight = 2 }, { to = "walk", weight = 2 }, { to = "look", weight = 1 }]
+
+# Tape du pied, tête haute : l'alarme des moutons, puis souvent il fixe.
+[[behavior]]
+name = "stamp"
+motion = "stamp"
+duration = 0.9
+next = [
+    { to = "look", weight = 3 },
+    { to = "stand", weight = 1 },
+    { to = "run", weight = 1 },
+    { to = "paw", weight = 2, when = "rowdy" },
+]
+
+# Gratte le sol d'un sabot de devant, tête basse : il va charger. Le plus
+# souvent, il recule d'abord de quelques pas pour prendre son élan.
+[[behavior]]
+name = "paw"
+motion = "paw"
+duration = [1.1, 2.2]
+next = [{ to = "back_up", weight = 6 }, { to = "charge", weight = 1 }, { to = "stand", weight = 1 }]
+
+# Recule sans se retourner, tête basse (`back` : il s'arrête au bord plutôt
+# que d'en tomber à reculons).
+[[behavior]]
+name = "back_up"
+motion = "back"
+speed = 44.0
+duration = [1.0, 1.6]
+next = [{ to = "rear", weight = 3 }, { to = "charge", weight = 2 }]
+
+# Se cabre : l'avant se dresse sur les pattes de derrière, celles de devant
+# repliées, puis retombe d'un coup, tête la première ; et il charge.
+[[behavior]]
+name = "rear"
+motion = "rear"
+duration = 1.15
+next = "charge"
+
+# Fonce, tête basse, oreilles couchées.
+[[behavior]]
+name = "charge"
+motion = "charge"
+speed = 222.0
+duration = [0.8, 1.5]
+next = [{ to = "stand", weight = 2 }, { to = "shake", weight = 1 }, { to = "walk", weight = 1 }]
+
+# Sonné : la tête tourne, les yeux mi-clos.
+[[behavior]]
+name = "daze"
+motion = "daze"
+duration = [1.6, 2.6]
+next = [{ to = "shake", weight = 3 }, { to = "stand", weight = 1 }]
+
+# Le vent : il lui tourne le dos, puis se protège, tête basse, oreilles
+# couchées, serré sur ses pattes.
+[[behavior]]
+name = "turn_away"
+motion = "turn"
+duration = 0.35
+next = "brace"
+
+[[behavior]]
+name = "brace"
+motion = "brace"
+duration = [2.5, 5.0]
+next = [{ to = "shake", weight = 2 }, { to = "stand", weight = 2 }, { to = "walk", weight = 1 }]
