@@ -1,0 +1,88 @@
+Mouflon pour Linux (aperçu)
+===========================
+
+Des moutons qui vivent sur le bureau : ils marchent sur les fenêtres,
+broutent, se rencontrent, jouent.
+
+C'est un aperçu : Mouflon est né sur Mac, et cette version Linux est jeune.
+
+Pour commencer
+--------------
+1. Garde ce dossier entier (le programme a besoin du dossier « pets » à côté de lui).
+2. Lance ./mouflon (ou ./installer.sh une fois, pour l'avoir dans le menu
+   des applications).
+3. Clic droit sur un mouton : son menu, et de quoi ajouter d'autres animaux,
+   ouvrir les réglages, quitter. On peut aussi l'attraper à la souris et le lancer.
+
+Ce qu'il faut
+-------------
+- Un bureau X11 avec un compositeur (GNOME, KDE, Xfce, Cinnamon, MATE…).
+  Sous Wayland, Mouflon passe par XWayland : les moutons vivent au bas de
+  l'écran et ne montent que sur les fenêtres des applications X11.
+- Pour les menus : zenity (GNOME et la plupart des bureaux) ou kdialog (KDE).
+- Pour les sons : mpg123, pw-play, paplay ou ffplay (l'un d'eux suffit).
+- Une carte graphique avec Vulkan ou OpenGL (sans carte graphique, dans une
+  machine virtuelle par exemple, Mouflon passe de lui-même par OpenGL).
+- La bibliothèque libxkbcommon-x11 (elle est là sur tous les bureaux ; sinon :
+  le paquet libxkbcommon-x11-0 sous Debian et Ubuntu).
+
+Les mises à jour
+----------------
+Mouflon se met à jour tout seul (il lui faut curl et tar, et le droit
+d'écrire dans ce dossier). Quand une nouvelle version est prête, un mouton
+(ou une soucoupe) l'annonce par un compte à rebours de dix secondes : le
+troupeau s'en va, puis revient avec la nouvelle version. Un clic sur un
+mouton pendant le compte, ou « Mettre à jour plus tard » dans le menu, la
+remet au prochain lancement. Pour que Mouflon ne cherche rien : décoche
+« Mettre Mouflon à jour automatiquement » dans les réglages. Ce que tu as
+ajouté dans ce dossier ou dans « pets » n'est pas touché.
+
+Si le fond de l'écran devient noir au lieu de rester transparent, essaie :
+    WGPU_BACKEND=vulkan ./mouflon      ou      WGPU_BACKEND=gl ./mouflon
+et dis-le-nous : asml@laposte.net
+
+--------------------------------------------------------------------------
+
+Mouflon for Linux (preview)
+===========================
+
+Sheep that live on your desktop: they walk on your windows, graze, meet
+and play.
+
+This is a preview: Mouflon was born on the Mac and this Linux version is young.
+
+Getting started
+---------------
+1. Keep this whole folder (the program needs the "pets" folder next to it).
+2. Run ./mouflon (or ./installer.sh once, to add it to your applications menu).
+3. Right-click a sheep for its menu, which also lets you add other animals,
+   open the settings and quit. You can also grab a sheep and throw it.
+
+Requirements
+------------
+- An X11 desktop with a compositor (GNOME, KDE, Xfce, Cinnamon, MATE…).
+  Under Wayland, Mouflon runs through XWayland: the sheep live at the bottom
+  of the screen and only climb onto the windows of X11 applications.
+- For menus: zenity (GNOME and most desktops) or kdialog (KDE).
+- For sounds: mpg123, pw-play, paplay or ffplay (any one of them).
+- A graphics card with Vulkan or OpenGL (without one, in a virtual machine
+  for instance, Mouflon uses OpenGL by itself).
+- The libxkbcommon-x11 library (present on every desktop; otherwise the
+  libxkbcommon-x11-0 package on Debian and Ubuntu).
+
+Updates
+-------
+Mouflon updates itself (it needs curl and tar, and the right to write in
+this folder). When a new version is ready, a sheep (or a flying saucer)
+announces it with a ten-second countdown: the flock leaves, then comes back
+with the new version. Click a sheep during the countdown, or choose "Update
+later" in the menu, to put it off until the next launch. To stop Mouflon
+from looking for updates, uncheck "Keep Mouflon up to date automatically" in
+the settings. Whatever you added to this folder or to "pets" is left alone.
+
+If the screen background turns black instead of staying transparent, try:
+    WGPU_BACKEND=vulkan ./mouflon      or      WGPU_BACKEND=gl ./mouflon
+and tell us: asml@laposte.net
+
+Mouflon : https://alejandrosml.github.io/Mouflon/
+© 2026 Alejandro San Martin Lamas — https://github.com/alejandrosml

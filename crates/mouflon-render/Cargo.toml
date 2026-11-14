@@ -1,0 +1,25 @@
+[package]
+name = "mouflon-render"
+description = "Rendu de Mouflon : rigs vectoriels animés, sprites et effets, en morceaux d'image."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+mouflon-core.workspace = true
+peniko.workspace = true
+usvg.workspace = true
+png.workspace = true
+tiny-skia.workspace = true
+base64.workspace = true
+thiserror.workspace = true
+log.workspace = true
+
+[dev-dependencies]
+bcdec_rs.workspace = true
+
+[lints]
+workspace = true

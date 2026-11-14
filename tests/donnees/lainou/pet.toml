@@ -1,0 +1,438 @@
+# Lainou, petit mouton de bureau : personnage original d'Alejandro San Martin Lamas.
+#
+# Chaque animation est une bande d'images de 256 × 256 pixels, dessinée dans
+# les deux sens (planches/gauche et planches/droite) : rien n'est retourné en
+# miroir, les lumières et les « Zzz » restent à l'endroit. Les déplacements
+# (`move`) sont en pixels de ces images, par image affichée.
+#
+# Les images de chute (tombe) et de prise (tenu) n'ont pas d'ombre dessinée :
+# en l'air, Mouflon dessine la sienne sur le sol ou la fenêtre en dessous.
+
+[pet]
+id = "lainou"
+name = "Lainou"
+author = "Alejandro San Martin Lamas"
+description = "Petit mouton de bureau tout en laine, avec sa clochette."
+version = "1.0.0"
+license = "MIT OR Apache-2.0"
+category = "sheep"     # sa famille : tous les moutons ensemble
+
+[appearance]
+strips_left = "planches/gauche/{name}.png"
+strips_right = "planches/droite/{name}.png"
+frame = [256, 256]
+scale = 0.375                 # une image de 256 pixels fait 96 points
+anchor = [128, 226]           # milieu des sabots, sur le sol
+drawn = ["shadow", "dust", "squash"]
+# Une image intermédiaire après chaque image, pour un mouvement plus fluide
+# (calculées par tools/inbetween).
+inbetweens = "entre-deux.toml"
+
+[physics]
+width = 78.0                  # du museau au museau : il se retourne quand son nez touche le bord
+height = 55.0                 # des sabots au haut de la tête
+hard_landing_speed = 1500.0   # au-delà, il atterrit sonné
+
+[reflexes]
+spawn = "arrivee"
+fall = "tombe"
+land = "atterrit"
+land_hard = "atterrit_sonne"
+held = "tenu"
+thrown = "tombe"
+bump = "culbute"
+poke = [
+    { to = "surpris", weight = 3 },
+    { to = "content", weight = 2 },
+    { to = "bele", weight = 1 },
+]
+# Il croise un autre animal en chemin : il le salue, se réjouit ou fait
+# demi-tour. Deux Lainou qui se rencontrent font la même chose ensemble.
+meet = [
+    { to = "salue", weight = 3 },
+    { to = "fete", weight = 2 },
+    { to = "demi_tour", weight = 2 },
+    { to = "surpris", weight = 1 },
+]
+leave = "au_revoir"           # un dernier bêlement avant de s'effacer
+together = "content"          # « Tous ensemble » : tout le troupeau saute de joie
+# Le pointeur file tout près de lui : il sursaute, bêle de surprise, ou
+# détale.
+startle = [{ to = "surpris", weight = 3 }, { to = "bele", weight = 1 }, { to = "course", weight = 1 }]
+# Personne au clavier ni à la souris depuis trois minutes : il bâille et
+# s'endort ; au retour de l'utilisateur, il se réveille.
+sleepy = "baille"
+wake = "se_reveiller"
+# Un coup de vent se lève : il lui tourne le dos s'il l'a dans le museau
+# (comme les moutons), sinon il le regarde passer, ou s'en étonne.
+wind = [
+    { to = "dos_au_vent", weight = 4, when = "into_wind" },
+    { to = "regarde", weight = 2 },
+    { to = "surpris", weight = 1 },
+]
+
+# Ce qu'il a envie de faire quand il a fini quelque chose.
+[choices]
+envie = [
+    { to = "marche", weight = 6 },
+    { to = "repos", weight = 3 },
+    { to = "regarde", weight = 2 },
+    { to = "brouter_debut", weight = 2 },
+    { to = "course", weight = 2 },
+    { to = "bele", weight = 1 },
+    { to = "content", weight = 1 },
+    { to = "saute", weight = 1 },
+    { to = "demi_tour", weight = 1 },
+    { to = "baille", weight = 1 },
+    { to = "s_ebroue", weight = 1 },
+    { to = "repos_face", weight = 1 },
+    # Il regarde volontiers le curseur qui passe, et s'endort plus vite la nuit.
+    { to = "regarde", weight = 4, when = "cursor_near:220" },
+    { to = "baille", weight = 4, when = "night" },
+    # Tu tapes au clavier : il se fait discret (il broute, se repose, te
+    # regarde travailler).
+    { to = "repos", weight = 5, when = "typing" },
+    { to = "brouter_debut", weight = 4, when = "typing" },
+    { to = "regarde", weight = 2, when = "typing" },
+    # Le matin, il s'ébroue et se réjouit ; le soir, il bâille.
+    { to = "s_ebroue", weight = 2, when = "morning" },
+    { to = "content", weight = 1, when = "morning" },
+    { to = "baille", weight = 2, when = "evening" },
+    # Selon son tempérament (réglages) : un énervé fonce tête baissée et
+    # bouscule ceux qu'il croise ; un actif court, saute et se réjouit ; un
+    # calme broute et se repose.
+    { to = "fonce", weight = 4, when = "rowdy" },
+    { to = "course", weight = 2, when = "lively" },
+    { to = "joue", weight = 2, when = "lively" },
+    { to = "joue", weight = 4, when = ["lively", "evening"] },  # les agneaux courent surtout le soir
+    { to = "saute", weight = 3, when = "lively" },
+    { to = "content", weight = 2, when = "lively" },
+    { to = "brouter_debut", weight = 3, when = "calm" },
+    { to = "repos", weight = 3, when = "calm" },
+    { to = "baille", weight = 1, when = "calm" },
+]
+
+# Sons : bêlements d'agneau, la clochette, le broutage et un petit bruit
+# d'atterrissage (enregistrements libres de droits, CC0 et domaine public :
+# voir CREDITS.md). Chaque son a plusieurs prises, tirées au hasard.
+[sounds]
+bele = { files = ["sons/agneau-1.mp3", "sons/agneau-2.mp3", "sons/agneau-3.mp3", "sons/agneau-4.mp3", "sons/agneau-5.mp3"], volume = 0.8 }
+clochette = { files = ["sons/clochette-1.mp3", "sons/clochette-2.mp3", "sons/clochette-3.mp3", "sons/clochette-4.mp3"], volume = 0.55 }
+broute = { files = ["sons/broute-1.mp3", "sons/broute-2.mp3"], volume = 0.6 }
+pose = { files = ["sons/pose-1.mp3", "sons/pose-2.mp3"], volume = 0.5 }
+
+# ------------------------------------------------------------------ au repos
+
+[[behavior]]
+name = "repos"
+fps = 8
+loops = [1, 2]
+next = "envie"
+
+[[behavior]]
+name = "repos_face"
+fps = 8
+next = "envie"
+
+# Il lève la tête et regarde : l'alerte se propage aux voisins.
+[[behavior]]
+name = "regarde"
+contagious = 0.2
+fps = 10
+next = "repos"
+
+# Le vent dans le museau : il lui tourne le dos, et reste là.
+[[behavior]]
+name = "dos_au_vent"
+strip = "demi_tour"
+fps = 12
+turns = true
+next = "repos"
+
+# ------------------------------------------------------------------ en route
+
+# Il part se promener ; ses voisins le suivent souvent, du même côté (les
+# moutons partent rarement seuls : `contagious`, la chance qu'un voisin
+# l'imite).
+[[behavior]]
+name = "marche"
+contagious = 0.25
+# De temps en temps, la clochette tinte en marchant.
+sound = { name = "clochette", frame = 0, chance = 0.04 }
+fps = 10
+loops = [3, 6]
+move = [5.5, 0]
+on_wall = "demi_tour"
+on_edge = [{ to = "demi_tour", weight = 4 }, { to = "aventure", weight = 1 }]
+next = "envie"
+
+# Quand l'un détale, les autres détalent aussi.
+[[behavior]]
+name = "course"
+contagious = 0.4
+# En courant, la clochette tinte souvent (pattes en l'air, image 3).
+sound = { name = "clochette", frame = 3, chance = 0.2 }
+fps = 14
+loops = [6, 10]
+move = [13, 0]
+on_wall = "se_cogne"
+on_edge = [{ to = "demi_tour", weight = 2 }, { to = "course_vide", weight = 1 }]
+# Lancé, il rentre dans l'autre, ou freine juste à temps.
+on_meet = [{ to = "se_cogne", weight = 2 }, { to = "surpris", weight = 1 }]
+next = "envie"
+
+# Énervé, il fonce tête baissée, plus vite, penché en avant.
+[[behavior]]
+name = "fonce"
+strip = "course"
+sound = { name = "clochette", frame = 3, chance = 0.3 }
+fps = 16
+loops = [4, 7]
+move = [17, 0]
+tilt = 0.12
+on_wall = "se_cogne"
+on_edge = [{ to = "demi_tour", weight = 2 }, { to = "course_vide", weight = 1 }]
+on_meet = "se_cogne"
+next = "envie"
+
+# Il continue au bout de la fenêtre et saute dans le vide.
+[[behavior]]
+name = "aventure"
+sound = { name = "clochette", frame = 0, chance = 0.04 }
+strip = "marche"
+fps = 10
+loops = [1, 2]
+move = [5.5, 0]
+walk_off_edges = true
+on_wall = "demi_tour"
+next = "envie"
+
+[[behavior]]
+name = "course_vide"
+sound = { name = "clochette", frame = 3, chance = 0.2 }
+strip = "course"
+fps = 14
+loops = 2
+move = [13, 0]
+walk_off_edges = true
+on_wall = "se_cogne"
+next = "envie"
+
+[[behavior]]
+name = "demi_tour"
+fps = 12
+turns = true
+next = [{ to = "marche", weight = 3 }, { to = "repos", weight = 1 }]
+
+# La course des agneaux (surtout les actifs) : ils filent en bande jusqu'au
+# bout, font demi-tour et reviennent, en sautant de temps en temps.
+[[behavior]]
+name = "joue"
+strip = "course"
+contagious = 0.5
+sound = { name = "clochette", frame = 3, chance = 0.25 }
+fps = 14
+loops = [3, 5]
+move = [12, 0]
+on_wall = "joue_tour"
+on_edge = "joue_tour"
+on_meet = [{ to = "se_cogne", weight = 1 }, { to = "surpris", weight = 1 }]
+next = [{ to = "joue_tour", weight = 3 }, { to = "saute", weight = 1 }, { to = "marche", weight = 1 }]
+
+[[behavior]]
+name = "joue_tour"
+strip = "demi_tour"
+fps = 14
+turns = true
+next = [{ to = "joue", weight = 3 }, { to = "saute", weight = 1 }, { to = "repos", weight = 1 }]
+
+# Lancé contre le bord de l'écran : il recule, sonné, puis fait demi-tour.
+[[behavior]]
+name = "se_cogne"
+sound = [{ name = "clochette", frame = 1 }, { name = "bele", chance = 0.3 }]
+fps = 12
+move = [[0, 0], [0, 0], [-5, 0], [-7, 0], [-4, 0], [-1.5, 0], [0, 0], [0, 0], [0, 0]]
+next = "demi_tour"
+
+[[behavior]]
+name = "saute"
+sound = [{ name = "clochette", frame = 3, chance = 0.8 }, { name = "pose", frame = 9, chance = 0.5 }]
+fps = 12
+next = "envie"
+
+# ------------------------------------------------------------------ occupations
+
+[[behavior]]
+name = "brouter_debut"
+fps = 10
+next = "brouter"
+
+[[behavior]]
+name = "brouter"
+sound = { name = "broute", frame = 0, chance = 0.7 }
+fps = 8
+loops = [3, 5]
+next = "brouter_fin"
+
+[[behavior]]
+name = "brouter_fin"
+fps = 10
+next = "repos"
+
+[[behavior]]
+name = "s_ebroue"
+sound = [{ name = "clochette", frame = 1 }, { name = "clochette", frame = 4, chance = 0.7 }]
+fps = 14
+next = "repos_face"
+
+[[behavior]]
+name = "bele"
+sound = "bele"
+fps = 10
+next = "repos"
+
+# ------------------------------------------------------------------ rencontres
+
+# Il bêle pour saluer l'autre, puis repart de son côté.
+[[behavior]]
+name = "salue"
+sound = "bele"
+strip = "bele"
+fps = 10
+next = "demi_tour"
+
+[[behavior]]
+name = "fete"
+sound = [{ name = "clochette", frame = 1, chance = 0.6 }, { name = "bele", chance = 0.3 }]
+strip = "content"
+fps = 10
+loops = 2
+next = "demi_tour"
+
+# Au revoir : il bêle une dernière fois, puis s'efface.
+[[behavior]]
+name = "au_revoir"
+sound = "bele"
+strip = "bele"
+fps = 10
+next = "repos"
+
+[[behavior]]
+name = "content"
+sound = { name = "clochette", frame = 1, chance = 0.5 }
+fps = 10
+loops = 3
+next = "envie"
+
+[[behavior]]
+name = "surpris"
+sound = { name = "bele", chance = 0.4 }
+fps = 10
+next = "regarde"
+
+[[behavior]]
+name = "etourdi"
+fps = 10
+loops = [1, 2]
+next = "envie"
+
+# ------------------------------------------------------------------ dodo
+
+# Bâiller est contagieux, chez les moutons aussi.
+[[behavior]]
+name = "baille"
+contagious = 0.15
+fps = 9
+next = "se_coucher"
+
+[[behavior]]
+name = "se_coucher"
+fps = 10
+next = "couche"
+
+[[behavior]]
+name = "couche"
+fps = 8
+sleep = true
+next = "s_endormir"
+
+[[behavior]]
+name = "s_endormir"
+fps = 6
+sleep = true
+next = "dort"
+
+# Il dort plus longtemps la nuit, et tant que tu n'es pas là.
+[[behavior]]
+name = "dort"
+fps = 6
+loops = [3, 6]
+sleep = true
+next = [
+    { to = "se_reveiller", weight = 1, when = "present" },
+    { to = "dort", weight = 3, when = ["night", "present"] },
+    { to = "dort", weight = 1, when = "away" },
+]
+
+[[behavior]]
+name = "se_reveiller"
+fps = 8
+next = "se_lever"
+
+[[behavior]]
+name = "se_lever"
+fps = 10
+next = "repos"
+
+# ------------------------------------------------------------------ chutes et prises
+
+# Lâché, ou le sol qui disparaît.
+[[behavior]]
+name = "tombe"
+motion = "fall"
+fps = 10
+duration = "forever"
+
+# Arrivée par le haut de l'écran : toujours en douceur.
+[[behavior]]
+name = "arrivee"
+strip = "tombe"
+motion = "fall"
+fps = 10
+duration = "forever"
+on_land = "atterrit"
+
+# Heurté par un autre animal (mode collisions) : il culbute et se relève
+# sonné. La clochette sonne au choc ; les premières images passent vite (20
+# par seconde), le temps qu'il s'envole, puis la chute reprend son rythme.
+[[behavior]]
+name = "culbute"
+sound = { name = "clochette" }
+strip = "tombe"
+motion = "fall"
+fps = [20, 10]
+duration = "forever"
+on_land = "atterrit_sonne"
+
+# Le choc d'abord, vite (20 images par seconde), puis il se remet plus
+# lentement (8).
+[[behavior]]
+name = "atterrit"
+sound = { name = "pose", chance = 0.8 }
+fps = [20, 8]
+next = "repos"
+
+[[behavior]]
+name = "atterrit_sonne"
+sound = [{ name = "pose" }, { name = "bele", chance = 0.5 }]
+strip = "atterrit"
+fps = [20, 8]
+next = "etourdi"
+
+[[behavior]]
+name = "tenu"
+# Attrapé, il bêle souvent.
+sound = { name = "bele", chance = 0.5 }
+motion = "held"
+fps = 10
+duration = "forever"

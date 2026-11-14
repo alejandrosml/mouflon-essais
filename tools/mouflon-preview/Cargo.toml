@@ -1,0 +1,18 @@
+[package]
+name = "mouflon-preview"
+description = "Outil d'aperçu : simule une scène sans écran et l'exporte en images (SVG puis PNG) pour vérifier rendu et fluidité."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+publish = false
+
+[dependencies]
+mouflon-core.workspace = true
+mouflon-render.workspace = true
+resvg.workspace = true
+
+[lints]
+workspace = true
