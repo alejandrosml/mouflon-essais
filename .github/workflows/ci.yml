@@ -1,0 +1,734 @@
+name: CI
+
+# Deux dépôts, un seul fichier.
+#
+# - Dans le dépôt de travail (alejandrosml/Mouflon), chaque envoi fabrique
+#   l'archive du code source et la pose dans le dépôt public des essais
+#   (alejandrosml/mouflon-essais), branche `essai/<branche>`. Les essais des
+#   trois systèmes ne tournent sur place que tant que ce dépôt est public, ou
+#   quand on lance ce flux à la main (pour préparer une version) : dans un
+#   dépôt privé, leurs minutes sont comptées.
+# - Dans le dépôt des essais, ce fichier arrive avec le code : il y fait
+#   tourner les essais des trois systèmes à chaque état posé, sans compter.
+#
+# Les fichiers d'un passage ne sont gardés que trois jours (`retention-days`) :
+# dans un dépôt privé, leur place aussi est comptée.
+on:
+  push:
+    branches: [main, "essai/**"]
+  pull_request:
+  workflow_dispatch:
+
+# Plusieurs envois se suivent parfois de près sur la même branche : un nouveau
+# passage remplace celui qui tournait encore pour elle (seul le dernier
+# compte). Un passage lancé à la main, lui, prépare une version : un envoi
+# sur `main` ne l'interrompt pas.
+concurrency:
+  group: ci-${{ github.event_name == 'workflow_dispatch' && 'a-la-main' || github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+# Aucun job n'écrit dans le dépôt, sauf celui qui prépare le brouillon d'une
+# version (il le demande lui-même). Les actions qui ne viennent pas de GitHub
+# sont prises à un commit précis, pas à une étiquette qui peut bouger.
+permissions:
+  contents: read
+
+jobs:
+  # L'archive du code source de la version (`scripts/package-source.sh`) :
+  # les fichiers de ce commit, ses deux licences comprises, sans son
+  # historique ni les notes de travail. Elle sort avec chaque version, à côté
+  # des trois programmes : c'est par elle que Mouflon reste open source.
+  #
+  # C'est aussi ce job qui dit où tournent les essais, et qui pose le code
+  # dans le dépôt des essais. Dans le dépôt de travail devenu privé, il est
+  # le seul à tourner à chaque envoi.
+  source:
+    name: Archive du code source
+    runs-on: ubuntu-latest
+    outputs:
+      essais: ${{ steps.ou.outputs.essais }}
+      maj: ${{ steps.ou.outputs.maj }}
+    env:
+      # « oui » quand le dépôt a la clé du dépôt des essais (un secret ne se
+      # lit pas dans la condition d'une étape : on la pose ici).
+      CLE_DES_ESSAIS: ${{ secrets.CLE_MOUFLON_ESSAIS != '' && 'oui' || '' }}
+      DEPOT_PRIVE: ${{ github.event.repository.private }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Où tournent les essais
+        id: ou
+        run: |
+          # L'essai de la mise à jour (trois constructions de plus par
+          # système) ne tourne que là où les minutes ne sont pas comptées.
+          maj=oui
+          if [[ "$GITHUB_REPOSITORY" != "alejandrosml/Mouflon" ]]; then
+            echo "Ici, le dépôt des essais : les essais des trois systèmes tournent."
+            essais=oui; miroir=non
+          else
+            # Privé ou public : ce que le dépôt est maintenant, pas ce qu'il
+            # était quand ce passage a été créé (on peut relancer un vieux
+            # passage). À défaut de réponse, ce que disait l'événement.
+            prive="$(gh api "repos/$GITHUB_REPOSITORY" --jq .private 2>/dev/null || echo "$DEPOT_PRIVE")"
+            essais=non; miroir=non
+            if [[ "$prive" == "true" ]]; then maj=non; fi
+            if [[ "$prive" != "true" || "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then essais=oui; fi
+            if [[ "$CLE_DES_ESSAIS" == "oui" && "$GITHUB_EVENT_NAME" != "workflow_dispatch" ]]; then miroir=oui; fi
+            echo "Ici, le dépôt de travail (privé : $prive) : essais sur place = $essais ; code posé dans le dépôt des essais = $miroir."
+            if [[ "$essais$miroir" == "nonnon" ]]; then
+              echo "::error::Aucun essai ne tourne pour cet envoi : ce dépôt est privé et n'a pas la clé du dépôt des essais (secret CLE_MOUFLON_ESSAIS)."
+              exit 1
+            fi
+          fi
+          echo "essais=$essais" >> "$GITHUB_OUTPUT"
+          echo "miroir=$miroir" >> "$GITHUB_OUTPUT"
+          echo "maj=$maj" >> "$GITHUB_OUTPUT"
+      # Le texte public des sources (`docs/sources.md`) doit être celui des
+      # documents d'où il est tiré. Ils ne sont pas dans l'archive : ce
+      # contrôle ne tourne qu'ici.
+      - name: Les sources publiées sont à jour
+        if: hashFiles('packaging/source/sources.py') != ''
+        run: python3 packaging/source/sources.py --verifie
+      - run: bash scripts/package-source.sh
+      # Le script qui publie une version, d'un bout à l'autre contre un faux
+      # GitHub. Il n'est pas dans l'archive : cet essai ne tourne qu'ici.
+      - name: Essai de « Signer Mouflon.command »
+        if: hashFiles('tools/signature/essai.sh') != ''
+        run: bash tools/signature/essai.sh
+      # Le code à essayer part dans le dépôt public des essais : le contenu
+      # de l'archive, en un seul commit sans parent, qui remplace l'état
+      # précédent de la branche. La clé n'ouvre que ce dépôt-là.
+      - name: Poser le code dans le dépôt des essais
+        if: steps.ou.outputs.miroir == 'oui'
+        env:
+          CLE: ${{ secrets.CLE_MOUFLON_ESSAIS }}
+          BRANCHE: ${{ github.head_ref || github.ref_name }}
+          COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          umask 077
+          trap 'rm -f "$RUNNER_TEMP/cle"' EXIT
+          printf '%s\n' "$CLE" > "$RUNNER_TEMP/cle"
+          # La clé de GitHub, telle qu'il la publie : on ne parle qu'à lui.
+          echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl" > "$RUNNER_TEMP/hotes"
+          export GIT_SSH_COMMAND="ssh -i $RUNNER_TEMP/cle -o IdentitiesOnly=yes -o UserKnownHostsFile=$RUNNER_TEMP/hotes -o StrictHostKeyChecking=yes"
+          bash scripts/push-trial.sh dist/Mouflon-*-source.zip \
+            git@github.com:alejandrosml/mouflon-essais.git "$BRANCHE" "${COMMIT:0:7}"
+          echo "Les essais : https://github.com/alejandrosml/mouflon-essais/actions?query=branch%3Aessai%2F$BRANCHE" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v5
+        if: steps.ou.outputs.essais == 'oui'
+        with:
+          retention-days: 3
+          name: Mouflon-source
+          path: dist/*-source.zip
+          # Déjà compressée.
+          compression-level: 0
+
+  tests:
+    name: Tests (moteur et rendu)
+    needs: source
+    if: needs.source.outputs.essais == 'oui'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - run: cargo fmt --all --check
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - run: cargo test --workspace
+
+  windows:
+    name: Windows (64 bits)
+    needs: source
+    if: needs.source.outputs.essais == 'oui'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - name: Construire Mouflon pour Windows
+        id: construit
+        shell: pwsh
+        run: scripts\bundle-windows.ps1
+      # L'app telle qu'on la télécharge, vingt secondes sur le bureau de la
+      # machine, avec une fenêtre où monter : elle doit arriver à son bilan,
+      # ses animaux posés par le compositeur de Windows, sur leur propre fil.
+      # (Chaque essai se fait même si un autre a échoué : un seul passage
+      # dit tout ce qui ne va pas.)
+      - name: Essai de vingt secondes
+        if: ${{ !cancelled() && steps.construit.outcome == 'success' }}
+        shell: pwsh
+        run: tools\essai\essai-windows.ps1 -Nom calques
+      # La souris attrape un mouton, puis ouvre et referme son menu.
+      - name: Essai de la souris
+        if: ${{ !cancelled() && steps.construit.outcome == 'success' }}
+        shell: pwsh
+        run: tools\essai\essai-windows.ps1 -Nom souris -Souris -Secondes 40 -Animaux "texel,suffolk,racka"
+      # Plusieurs écrans (trois, découpés dans le vrai, rangés comme un
+      # portable, un écran au-dessus et un autre à gauche) : chacun reçoit
+      # sa fenêtre, posée au pixel près, et son sol.
+      - name: Essai à plusieurs écrans
+        if: ${{ !cancelled() && steps.construit.outcome == 'success' }}
+        shell: pwsh
+        run: tools\essai\essai-windows.ps1 -Nom ecrans -Secondes 20 -Ecrans "0,100,400,500,30;400,300,624,468,40;500,0,400,300,24"
+      # L'annonce d'une mise à jour, pour la voir (les captures sont dans
+      # l'artefact) : la bulle qui compte au-dessus d'un mouton, puis la
+      # soucoupe et son faisceau, avec le compte dans sa lumière.
+      - name: Essai de l'annonce d'une mise à jour
+        if: ${{ !cancelled() && steps.construit.outcome == 'success' }}
+        shell: pwsh
+        run: |
+          tools\essai\essai-windows.ps1 -Nom annonce-annonceur -Secondes 12 -Annonce annonceur
+          tools\essai\essai-windows.ps1 -Nom annonce-soucoupe -Secondes 12 -Annonce soucoupe
+      # Lancé deux fois, puis trois : un seul Mouflon, qui fait venir un
+      # animal au hasard à chaque fois.
+      - name: Second lancement
+        if: ${{ !cancelled() && steps.construit.outcome == 'success' }}
+        shell: pwsh
+        run: tools\essai\relance-windows.ps1
+      # L'affichage se perd (comme quand un pilote graphique est mis à
+      # jour) : tout doit se refaire seul.
+      - name: Essai de l'affichage perdu
+        if: ${{ !cancelled() && steps.construit.outcome == 'success' }}
+        shell: pwsh
+        run: tools\essai\essai-windows.ps1 -Nom perte -Perte 6 -Secondes 16
+      # Le même essai par l'ancien chemin (une surface de tout l'écran,
+      # redessinée par DirectX), pour comparer ce que chacun coûte.
+      - name: Essai par le GPU, pour comparer
+        if: ${{ !cancelled() && steps.construit.outcome == 'success' }}
+        shell: pwsh
+        continue-on-error: true
+        run: tools\essai\essai-windows.ps1 -Nom gpu -Gpu
+      # L'horloge de l'écran, autrement : en battant d'elle-même entre deux
+      # rafraîchissements de l'écran, puis en attendant que le compositeur de
+      # Windows ait pris chaque image, pour comparer ce que l'écran reçoit
+      # vraiment (les lignes ECRAN de couts.txt).
+      - name: Essais de l'horloge de l'écran, pour comparer
+        if: ${{ !cancelled() && steps.construit.outcome == 'success' }}
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          tools\essai\essai-windows.ps1 -Nom horloge-prevue -Horloge 0.5 -Secondes 14
+          tools\essai\essai-windows.ps1 -Nom horloge-envoi -Horloge envoi -Secondes 14
+      # Le script livré avec le programme (« Essai de Mouflon.cmd », le
+      # double-clic de quelqu'un chez qui Mouflon ne va pas) : il doit
+      # laisser son fichier, avec le journal du programme et celui de l'essai.
+      - name: Essai par le script livré
+        if: ${{ !cancelled() && steps.construit.outcome == 'success' }}
+        shell: pwsh
+        run: |
+          $env:MOUFLON_ESSAI_CI = "1"
+          & "dist\Mouflon\Essai de Mouflon.cmd"
+          if ($LASTEXITCODE -ne 0) { throw "le script d'essai a rendu $LASTEXITCODE" }
+          $fichier = "dist\Mouflon\essai-mouflon.txt"
+          New-Item -ItemType Directory -Force essai-windows | Out-Null
+          Copy-Item $fichier essai-windows\essai-mouflon.txt
+          foreach ($attendu in "Essai de Mouflon, le", "Microsoft Windows", "calques : DirectComposition", "essai termin", "ESSAI Mouflon") {
+            if (-not (Select-String -Path $fichier -SimpleMatch -Pattern $attendu -Quiet)) {
+              throw "essai-mouflon.txt : il y manque « $attendu »"
+            }
+          }
+          # Et aucun arrêt pendant l'essai (voir essai-windows.ps1).
+          $bilan = Select-String -Path $fichier -Pattern "^BILAN .*?max ([\d.]+) ms" | Select-Object -First 1
+          if (-not $bilan) { throw "essai-mouflon.txt : pas de bilan" }
+          $long = [double]$bilan.Matches[0].Groups[1].Value
+          Write-Host "plus long écart entre deux images : $long ms"
+          if ($long -gt 1000) { throw "un arrêt de $long ms pendant l'essai : les moutons se sont figés" }
+      # La vitrine : les fenêtres de Mouflon (réglages, galerie, « À
+      # propos ») telles que Windows les dessine, en clair et en sombre,
+      # dans cinq langues (`vitrine-windows/`).
+      - name: Vitrine des fenêtres
+        if: ${{ !cancelled() && steps.construit.outcome == 'success' }}
+        shell: pwsh
+        run: tools\essai\vitrine-windows.ps1
+      # La couche système de Windows (ses fenêtres comprises).
+      - name: Couche système
+        if: ${{ !cancelled() }}
+        run: cargo test -p mouflon-platform
+      # Le dessin direct, par DirectX (sans carte graphique : le rendu
+      # logiciel de Windows) : la même image que sur le processeur.
+      - name: Dessin direct
+        if: ${{ !cancelled() }}
+        run: >-
+          cargo test --release -p mouflon-app -- "gpu::" "quick::" --test-threads=1 --nocapture
+      # La mise à jour de Mouflon par lui-même, d'un bout à l'autre, avec
+      # des programmes d'essai et un dossier qui tient lieu de dépôt des
+      # versions : une version plus récente s'installe et prend le relais,
+      # une version qui ne démarre pas rend la place, une version remise à
+      # plus tard s'installe au lancement (`essai-windows/maj/`). En dernier :
+      # il reconstruit le programme, en programme d'essai.
+      - name: Essai de la mise à jour
+        if: ${{ !cancelled() && steps.construit.outcome == 'success' && needs.source.outputs.maj == 'oui' }}
+        shell: pwsh
+        run: tools\essai\maj-windows.ps1
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          retention-days: 3
+          name: essai-windows
+          path: essai-windows/
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          retention-days: 3
+          name: vitrine-windows
+          path: vitrine-windows/
+      - uses: actions/upload-artifact@v5
+        if: ${{ !cancelled() && steps.construit.outcome == 'success' }}
+        with:
+          retention-days: 3
+          name: Mouflon-windows-x64
+          path: dist/*.zip
+
+  linux:
+    name: Linux (x86_64, aperçu)
+    needs: source
+    if: needs.source.outputs.essais == 'oui'
+    # Une distribution ancienne : le programme tourne aussi sur les récentes.
+    runs-on: ubuntu-22.04
+    steps:
+      # Pas de `checkout` ici : ce job construit et essaie Mouflon à partir
+      # de l'archive du code, telle qu'elle sera publiée, et de rien d'autre.
+      # C'est la preuve qu'elle suffit à reconstruire le programme.
+      - uses: actions/download-artifact@v5
+        with:
+          name: Mouflon-source
+          path: ${{ runner.temp }}/archive
+      - name: Le code, tiré de l'archive
+        run: |
+          unzip -q "$RUNNER_TEMP"/archive/Mouflon-*-source.zip -d "$RUNNER_TEMP/code"
+          shopt -s dotglob
+          mv "$RUNNER_TEMP"/code/Mouflon-*/* .
+          test ! -e .git && test -f Cargo.toml
+          ls -A
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - run: bash scripts/bundle-linux.sh
+      # L'app telle qu'on la télécharge, vingt secondes sur un écran
+      # virtuel (X11, rendu logiciel, un compositeur pour la transparence),
+      # avec deux fenêtres où monter.
+      - name: Essai de vingt secondes
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb xcompmgr imagemagick x11-apps libegl1 libgl1-mesa-dri mesa-vulkan-drivers libxkbcommon-x11-0 >/dev/null
+          export MOUFLON_ESSAI=20 MOUFLON_SURPRISE=0 MOUFLON_JOURNAL=$PWD/essai-linux.log
+          export MOUFLON_ESSAI_ANIMAUX=texel,racka,ouessant,jacob,suffolk,merinos-d-arles
+          xvfb-run -a -s "-screen 0 1280x800x24" bash -c '
+            xcompmgr &
+            xclock -geometry 420x260+180+380 & xclock -geometry 300x200+700+300 &
+            sleep 2
+            dist/Mouflon/mouflon > essai-linux-console.log 2>&1 & APP=$!
+            sleep 13
+            import -window root essai-linux.png
+            wait $APP' || { tail -20 essai-linux-console.log; exit 1; }
+          head -14 essai-linux.log
+          grep "^BILAN" essai-linux.log
+          ! grep -E "panique|panicked" essai-linux.log essai-linux-console.log
+          grep -q "fenêtre + " essai-linux.log
+          # Sans carte graphique, OpenGL passe avant le Vulkan du processeur.
+          grep -q "^GPU .*, Gl, " essai-linux.log
+          # Le fond de Mouflon est transparent : le cadran blanc d'une
+          # horloge se voit toujours à travers sa fenêtre.
+          test "$(convert essai-linux.png -crop 16x16+190+610 -format '%[fx:mean>0.8]' info:)" = 1
+          # Et des moutons s'y voient : un écran sans eux n'a pas trois cents
+          # couleurs, avec eux plusieurs milliers.
+          test "$(convert essai-linux.png -format '%k' info:)" -gt 1000
+          # Le même par Vulkan (ici calculé sur le processeur) : il doit
+          # tourner sans casse ; ce qu'il montre dépend de la version de Mesa.
+          export MOUFLON_ESSAI=10 MOUFLON_JOURNAL=$PWD/essai-linux-vulkan.log WGPU_BACKEND=vulkan
+          xvfb-run -a -s "-screen 0 1280x800x24" bash -c '
+            xcompmgr &
+            xclock -geometry 420x260+180+380 & sleep 1
+            dist/Mouflon/mouflon > essai-linux-vulkan-console.log 2>&1 & APP=$!
+            sleep 7
+            import -window root essai-linux-vulkan.png
+            wait $APP' || { tail -20 essai-linux-vulkan-console.log; exit 1; }
+          grep "^BILAN" essai-linux-vulkan.log
+          grep -q "^GPU .*, Vulkan, " essai-linux-vulkan.log
+          # Trois écrans simulés (un portable, un écran au-dessus, un autre
+          # à gauche) : une fenêtre par écran, des animaux sur chacun, rien
+          # là où il n'y a pas d'écran. Aucun sol n'en rejoint un autre :
+          # les animaux changent d'écran d'un grand bond ou d'un saut
+          # (l'envie leur en revient ici toutes les une à trois secondes).
+          unset WGPU_BACKEND
+          export MOUFLON_ESSAI=18 MOUFLON_JOURNAL=$PWD/essai-linux-ecrans.log
+          export MOUFLON_VOYAGES=1,3
+          export MOUFLON_ESSAI_ANIMAUX=texel,racka,ouessant,jacob,suffolk,merinos-d-arles,southdown,bleu-du-maine
+          export MOUFLON_ECRANS="0,150,500,500,30;500,400,780,400,38;600,0,500,400,24"
+          pip install -q python-xlib numpy pillow
+          xvfb-run -a -s "-screen 0 1280x800x24" bash -c '
+            dist/Mouflon/mouflon > essai-linux-ecrans-console.log 2>&1 & APP=$!
+            sleep 10
+            python3 tools/essai/alpha_x11.py essai-linux-ecrans.png | tee essai-linux-ecrans.txt
+            wait $APP' || { tail -20 essai-linux-ecrans-console.log; exit 1; }
+          grep "^BILAN" essai-linux-ecrans.log
+          ! grep -E "panique|panicked" essai-linux-ecrans.log essai-linux-ecrans-console.log
+          test "$(grep -c "scène : fenêtre de l.écran" essai-linux-ecrans.log)" = 3
+          grep -q "fenêtres de Mouflon : 3" essai-linux-ecrans.txt
+          grep "voyages :" essai-linux-ecrans.log | tail -1
+          grep -qE "voyages : [0-9]+ partis vers un autre écran, [1-9][0-9]* arrivés" essai-linux-ecrans.log
+          unset MOUFLON_ECRANS MOUFLON_VOYAGES
+      # La mise à jour de Mouflon par lui-même, d'un bout à l'autre (voir
+      # `tools/essai/maj.sh`) : une version plus récente s'installe et prend
+      # le relais, une version qui ne démarre pas rend la place, une version
+      # remise à plus tard s'installe au lancement. En dernier : il
+      # reconstruit le programme, en programme d'essai.
+      - name: Essai de la mise à jour
+        if: ${{ !cancelled() && needs.source.outputs.maj == 'oui' }}
+        run: xvfb-run -a -s "-screen 0 1280x800x24" bash tools/essai/maj.sh essai-maj-linux
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          retention-days: 3
+          name: essai-linux
+          path: |
+            essai-linux*.log
+            essai-linux*.png
+            essai-linux*.txt
+            essai-maj-linux/
+      - uses: actions/upload-artifact@v5
+        with:
+          retention-days: 3
+          name: Mouflon-linux-x86_64
+          path: dist/*.tar.gz
+
+  # Le programme tel qu'on le télécharge, sur une distribution récente et
+  # par Vulkan (ici calculé sur le processeur) : le chemin d'un vrai bureau
+  # avec sa carte graphique.
+  linux-recent:
+    name: Linux récent (Vulkan)
+    needs: linux
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          name: Mouflon-linux-x86_64
+      - name: Essai de dix secondes
+        run: |
+          tar xzf Mouflon-*-linux-x86_64.tar.gz
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb xcompmgr imagemagick x11-apps libegl1 libgl1-mesa-dri mesa-vulkan-drivers libxkbcommon-x11-0 >/dev/null
+          export MOUFLON_ESSAI=10 MOUFLON_SURPRISE=0 MOUFLON_JOURNAL=$PWD/essai-linux-recent.log WGPU_BACKEND=vulkan
+          export MOUFLON_ESSAI_ANIMAUX=texel,racka,ouessant,jacob,suffolk,merinos-d-arles
+          xvfb-run -a -s "-screen 0 1280x800x24" bash -c '
+            xcompmgr &
+            xclock -geometry 420x260+180+380 & sleep 1
+            Mouflon/mouflon > essai-linux-recent-console.log 2>&1 & APP=$!
+            sleep 7
+            import -window root essai-linux-recent.png
+            wait $APP' || { tail -20 essai-linux-recent-console.log; exit 1; }
+          grep "^GPU .*, Vulkan, " essai-linux-recent.log
+          grep "^BILAN" essai-linux-recent.log
+          ! grep -E "panique|panicked" essai-linux-recent.log essai-linux-recent-console.log
+          # Le fond est transparent (le cadran de l'horloge se voit) et les
+          # moutons sont là (des milliers de couleurs).
+          test "$(convert essai-linux-recent.png -crop 16x16+190+610 -format '%[fx:mean>0.8]' info:)" = 1
+          test "$(convert essai-linux-recent.png -format '%k' info:)" -gt 1000
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          retention-days: 3
+          name: essai-linux-recent
+          path: |
+            essai-linux-recent*.log
+            essai-linux-recent*.png
+
+  macos:
+    name: Bundle macOS (Apple Silicon)
+    needs: source
+    if: needs.source.outputs.essais == 'oui'
+    runs-on: macos-latest
+    env:
+      # « oui » quand le dépôt a de quoi signer pour Apple (un secret ne se
+      # lit pas dans la condition d'une étape : on la pose ici).
+      SIGNATURE_APPLE: ${{ secrets.APPLE_CERTIFICATE != '' && 'oui' || '' }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          targets: aarch64-apple-darwin
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+
+      # Signature Developer ID et notarisation, seulement sur `main` (ce qui
+      # ira dans le brouillon de la version) et si les secrets sont configurés
+      # dans le dépôt (voir README, « Publier »).
+      - name: Importer le certificat Developer ID
+        if: github.event_name == 'push' && env.SIGNATURE_APPLE == 'oui'
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+        run: |
+          KEYCHAIN=$RUNNER_TEMP/build.keychain-db
+          security create-keychain -p "" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "" "$KEYCHAIN"
+          echo "$APPLE_CERTIFICATE" | base64 --decode > $RUNNER_TEMP/cert.p12
+          security import $RUNNER_TEMP/cert.p12 -P "$APPLE_CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN"
+          security list-keychain -d user -s "$KEYCHAIN"
+          security set-key-partition-list -S apple-tool:,apple: -s -k "" "$KEYCHAIN"
+          xcrun notarytool store-credentials mouflon \
+            --apple-id "${{ secrets.APPLE_ID }}" --team-id "${{ secrets.APPLE_TEAM_ID }}" \
+            --password "${{ secrets.APPLE_APP_PASSWORD }}"
+          echo "SIGN_IDENTITY=${{ secrets.APPLE_SIGN_IDENTITY }}" >> $GITHUB_ENV
+          echo "NOTARY_PROFILE=mouflon" >> $GITHUB_ENV
+
+      - run: bash scripts/bundle-macos.sh
+
+      - uses: actions/upload-artifact@v5
+        with:
+          retention-days: 3
+          name: Mouflon-macos-arm64
+          path: dist/*.zip
+
+      # Essai de trois minutes, le même que sur un Mac (`tools/essai/Essai de 3
+      # minutes.command`) : un Mérinos d'Arles et un agneau Southdown en mode
+      # collisions ; à mi-parcours, l'un s'en va et un autre arrive. L'app note
+      # chaque image, chaque événement, la pile du fil principal quand une image
+      # tarde, les ressources du processus, de ses fils et du système ; autour,
+      # `sample`, `top`, `log stream`, `vm_stat`, `pmset`, et `footprint` vers
+      # la fin. Des instantanés de ce qui est à l'écran (calques de la scène)
+      # vont dans instantanes/. Tout va dans essais/<date>/, avec l'analyse
+      # (`analyse.txt`). Un plantage, même en quittant (ou un blocage), fait
+      # échouer la construction ; l'app, déjà envoyée, reste téléchargeable.
+      - name: Essai de trois minutes
+        run: |
+          MOUFLON_ESSAI_CI=1 MOUFLON_ESSAI_INSTANTANES=1 perl -e 'alarm 480; exec @ARGV' \
+            bash "tools/essai/Essai de 3 minutes.command" | tee essai-console.log
+          grep -q "essai terminé" essais/*/sortie.log
+
+      # Une minute avec les quatre races dessinées d'après nature (des
+      # dessins vectoriels de quelques centaines de Ko, cuits en images) :
+      # elles se chargent, vivent et s'affichent sur les calques Core
+      # Animation sans planter ; leurs budgets sont vérifiés avec les autres.
+      - name: Essai d'une minute, les quatre races
+        run: |
+          MOUFLON_ESSAI_CI=1 MOUFLON_ESSAI_DUREE=60 MOUFLON_ESSAI_SUFFIXE=races \
+            MOUFLON_ESSAI_ANIMAUX=mouflon-corse,nez-noir,jacob,ouessant \
+            perl -e 'alarm 240; exec @ARGV' \
+            bash "tools/essai/Essai de 3 minutes.command" | tee essai-races-console.log
+          grep -q "essai terminé" essais/*-races/sortie.log
+
+      # Une minute sur trois écrans simulés, découpés dans le vrai (un
+      # portable, un écran au-dessus, un autre à gauche) : une fenêtre et
+      # un sol par écran. Le Mac de la CI n'a qu'un écran : c'est le seul
+      # moyen d'y essayer plusieurs fenêtres d'écran. Un échec ne fait pas
+      # échouer la construction.
+      - name: Essai d'une minute, trois écrans
+        continue-on-error: true
+        run: |
+          MOUFLON_ESSAI_CI=1 MOUFLON_ESSAI_DUREE=60 MOUFLON_ESSAI_SUFFIXE=ecrans \
+            MOUFLON_ECRANS="0,150,400,500,30;400,300,624,468,40;500,0,400,300,24" \
+            MOUFLON_VOYAGES=2,6 \
+            MOUFLON_ESSAI_ANIMAUX=merinos-d-arles,southdown,texel,racka,jacob,ouessant \
+            perl -e 'alarm 240; exec @ARGV' \
+            bash "tools/essai/Essai de 3 minutes.command" | tee essai-ecrans-console.log
+          grep -q "essai terminé" essais/*-ecrans/sortie.log
+          test "$(grep -c "scène : fenêtre de l.écran" essais/*-ecrans/journal.log)" = 3
+          grep "voyages :" essais/*-ecrans/journal.log | tail -1
+          grep -qE "voyages : [0-9]+ partis vers un autre écran, [1-9][0-9]* arrivés" essais/*-ecrans/journal.log
+
+      # La même chose en une minute, les animaux dessinés sur le GPU
+      # (`MOUFLON_GPU`, l'autre façon d'afficher, gardée pour les autres
+      # systèmes) : qu'elle tourne sans planter. Un échec ne fait pas
+      # échouer la construction.
+      - name: Essai d'une minute, dessin sur le GPU
+        continue-on-error: true
+        run: |
+          MOUFLON_ESSAI_CI=1 MOUFLON_ESSAI_DUREE=60 perl -e 'alarm 240; exec @ARGV' \
+            bash "tools/essai/Essai de 3 minutes (GPU).command" | tee essai-gpu-console.log
+          grep -q "essai terminé" essais/*-gpu/sortie.log
+
+      # L'annonce d'une mise à jour, pour la voir sur les calques Core
+      # Animation (`MOUFLON_ANNONCE`) : l'écran est capturé pendant le compte
+      # (la bulle au-dessus d'un mouton ; la soucoupe, son faisceau et le
+      # compte dans sa lumière), puis quand le troupeau s'en va (la soucoupe
+      # repasse et les prend l'un après l'autre). Un échec ne
+      # fait pas échouer la construction.
+      - name: Essai de l'annonce d'une mise à jour
+        continue-on-error: true
+        run: |
+          for scene in annonceur soucoupe; do
+            MOUFLON_ESSAI_CI=1 MOUFLON_ESSAI_DUREE=22 MOUFLON_ESSAI_SUFFIXE=annonce-$scene \
+              MOUFLON_ESSAI_INSTANTANES=1 MOUFLON_ESSAI_CAPTURES="8 13 15 17" MOUFLON_ANNONCE=$scene \
+              MOUFLON_ESSAI_ANIMAUX=merinos-d-arles,southdown,texel,racka,jacob \
+              perl -e 'alarm 240; exec @ARGV' \
+              bash "tools/essai/Essai de 3 minutes.command" | tee essai-annonce-$scene-console.log
+            grep -q "essai terminé" essais/*-annonce-$scene/sortie.log
+          done
+
+      # Essai de charge : 20, 100, 500 puis 1 000 animaux (`MOUFLON_ESSAI_CHARGE`),
+      # pour voir comment Mouflon tient la foule (l'analyse donne chaque
+      # palier). Un échec ne fait pas échouer la construction.
+      - name: Essai de charge
+        continue-on-error: true
+        run: |
+          MOUFLON_ESSAI_CI=1 perl -e 'alarm 420; exec @ARGV' \
+            bash "tools/essai/Essai de charge.command" | tee essai-charge-console.log
+          grep -q "essai terminé" essais/*-charge/sortie.log
+
+      # Budgets (docs/architecture.md, 3.7) : la construction échoue si
+      # Mouflon lui-même a causé des à-coups, dans l'essai de trois minutes
+      # ou l'essai de charge jusqu'à cent animaux — son fil au travail, sans
+      # que la machine virtuelle retienne tout le processus
+      # (`analyse.py --budget`) —, ou si un essai a paniqué ou n'a pas fini
+      # (même l'essai de charge, dont l'échec ne compte pas ailleurs).
+      - name: Budgets des essais
+        run: |
+          failed=0
+          for dir in essais/*/; do
+            case "$dir" in *-gpu/ | *-annonce-*/) continue ;; esac
+            echo "== $dir"
+            if ! python3 tools/essai/analyse.py --budget "$dir" > budget.txt 2>&1; then
+              # (L'essai à plusieurs écrans simulés : pour information.)
+              case "$dir" in *-ecrans/) ;; *) failed=1 ;; esac
+            fi
+            awk '/^BUDGETS/,0' budget.txt
+          done
+          exit $failed
+
+      # Vitrine : la fenêtre des réglages en images, en plusieurs langues
+      # (`MOUFLON_LANGUE`) — claire, puis avec ses remarques en clair et en
+      # sombre — et le texte du menu d'un animal (`vitrine/`). Rien n'y est
+      # changé ; un échec ici ne fait pas échouer la construction.
+      - name: Vitrine des réglages
+        continue-on-error: true
+        run: |
+          for langue in fr en de ja ru; do
+            MOUFLON_VITRINE=vitrine MOUFLON_LANGUE=$langue RUST_LOG=warn,mouflon=info,mouflon_platform=info \
+              perl -e 'alarm 90; exec @ARGV' \
+              dist/Mouflon.app/Contents/MacOS/mouflon > vitrine-$langue.log 2>&1 || true
+          done
+          ls -la vitrine
+
+      # La mise à jour de Mouflon par lui-même, d'un bout à l'autre (voir
+      # `tools/essai/maj.sh`) : l'app est remplacée par une version plus
+      # récente, qui prend le relais ; une version qui ne démarre pas rend la
+      # place ; une version remise à plus tard s'installe au lancement. En
+      # dernier : il reconstruit le programme, en programme d'essai.
+      - name: Essai de la mise à jour
+        if: ${{ !cancelled() && needs.source.outputs.maj == 'oui' }}
+        run: perl -e 'alarm 2400; exec @ARGV' bash tools/essai/maj.sh essais/maj
+
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          retention-days: 3
+          name: vitrine
+          path: |
+            vitrine/
+            vitrine-*.log
+
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          retention-days: 3
+          name: essai-journal
+          path: |
+            essai-console.log
+            essai-ecrans-console.log
+            essai-gpu-console.log
+            essai-charge-console.log
+            essai-races-console.log
+            essai-annonce-annonceur-console.log
+            essai-annonce-soucoupe-console.log
+            essais/
+
+  # Pour une étiquette `v…` : un brouillon de version avec les fichiers des
+  # trois systèmes. L'auteur le relit, puis le publie d'un clic.
+  # Le brouillon de la version, dans le dépôt de travail. Quand les essais y
+  # tournent sur `main` (à chaque passage tant que le dépôt est public ;
+  # ensuite quand on lance ce flux à la main), les fichiers des trois systèmes
+  # et l'archive du code vont dans un brouillon « Mouflon v<numéro de
+  # Cargo.toml> », avec le texte de docs/versions/v<numéro>.md. Une version
+  # publiée ne bouge plus : pour la suivante, changer le numéro et écrire son
+  # texte. Partout ailleurs (pull request, dépôt des essais), tout se prépare
+  # de même, sauf le brouillon lui-même.
+  version:
+    name: Version (brouillon)
+    needs: [source, tests, windows, linux, macos]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - name: Quelle version
+        id: quoi
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="v$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          if [[ "$(gh release view "$tag" --json isDraft --jq .isDraft 2>/dev/null)" == "false" ]]; then
+            echo "La version $tag est déjà publiée : on n'y touche pas."
+          elif [[ ! -f "docs/versions/$tag.md" ]]; then
+            echo "Pas de texte docs/versions/$tag.md : pas de brouillon."
+          else
+            echo "brouillon=oui" >> "$GITHUB_OUTPUT"
+            echo "Brouillon de la version $tag."
+          fi
+      - uses: actions/download-artifact@v5
+        with:
+          path: fichiers
+          pattern: Mouflon-*
+          merge-multiple: true
+      # Aucune version ne sort sans le code qui l'a faite : les trois
+      # programmes et l'archive du code de cette version-là, avec ses deux
+      # licences, ou pas de brouillon.
+      - name: Les fichiers de la version
+        env:
+          TAG: ${{ steps.quoi.outputs.tag }}
+        run: |
+          v="${TAG#v}"
+          ls -l fichiers
+          for f in "Mouflon-$v-macos-arm64.zip" "Mouflon-$v-windows-x64.zip" \
+                   "Mouflon-$v-linux-x86_64.tar.gz" "Mouflon-$v-source.zip"; do
+            test -f "fichiers/$f" || { echo "::error::il manque $f"; exit 1; }
+          done
+          test "$(ls fichiers | wc -l)" = 4
+          code="$RUNNER_TEMP/code/Mouflon-$v"
+          unzip -q "fichiers/Mouflon-$v-source.zip" "Mouflon-$v/LICENSE-MIT" \
+            "Mouflon-$v/LICENSE-APACHE" "Mouflon-$v/Cargo.toml" -d "$RUNNER_TEMP/code" \
+            || { echo "::error::l'archive du code n'a pas ses licences ou son Cargo.toml"; exit 1; }
+          grep -q "MIT License" "$code/LICENSE-MIT" \
+            || { echo "::error::l'archive du code n'a pas la licence MIT"; exit 1; }
+          grep -q "Apache License" "$code/LICENSE-APACHE" \
+            || { echo "::error::l'archive du code n'a pas la licence Apache"; exit 1; }
+          grep -qx "version = \"$v\"" "$code/Cargo.toml" \
+            || { echo "::error::l'archive du code n'est pas celle de la version $v"; exit 1; }
+      # Un brouillon neuf à chaque passage : l'ancien garderait le texte et
+      # le commit du jour où il a été créé, et c'est sur ce commit-là que
+      # GitHub poserait l'étiquette de la version. (Des brouillons seulement :
+      # une version publiée ne se retire jamais d'ici.)
+      - name: Retirer le brouillon précédent
+        if: >-
+          github.repository == 'alejandrosml/Mouflon' && github.ref == 'refs/heads/main'
+          && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+          && steps.quoi.outputs.brouillon == 'oui'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.quoi.outputs.tag }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100" \
+            --jq ".[] | select(.draft and .tag_name == \"$TAG\") | .id" | while read -r id; do
+            echo "brouillon $id de $TAG : retiré"
+            gh api -X DELETE "repos/$GITHUB_REPOSITORY/releases/$id" < /dev/null
+          done
+      - uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
+        if: >-
+          github.repository == 'alejandrosml/Mouflon' && github.ref == 'refs/heads/main'
+          && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+          && steps.quoi.outputs.brouillon == 'oui'
+        with:
+          draft: true
+          tag_name: ${{ steps.quoi.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: Mouflon ${{ steps.quoi.outputs.tag }}
+          body_path: docs/versions/${{ steps.quoi.outputs.tag }}.md
+          files: fichiers/*

@@ -1,0 +1,263 @@
+# Bélier Solognot : 70 cm au garrot, sans cornes, plus lourd, encolure plus épaisse, tête plus forte au chanfrein plus bombé.
+# Tiré de la brebis peinte (squelette.toml et morceaux/) par
+# tools/races/solognote/variantes_solognote.py : ne pas le modifier à la main.
+# Sept pixels par centimètre ; le sol est à y = 639.
+size = [1001, 682]
+ground = [430.0, 639.0]
+muzzle = [947.2, 246.6]
+
+[[bone]]
+name = "racine"
+at = [430.0, 639.0]
+
+[[bone]]
+name = "corps"
+parent = "racine"
+at = [419.1, 322.0]
+role = "body"
+
+[[bone]]
+name = "queue"
+parent = "corps"
+at = [103.2, 223.8]
+role = "tail"
+
+[[bone]]
+name = "queue-milieu"
+parent = "queue"
+at = [72.9, 315.6]
+role = "tail"
+
+[[bone]]
+name = "queue-bout"
+parent = "queue-milieu"
+at = [52.1, 410.5]
+role = "tail"
+
+[[bone]]
+name = "patte-arriere-loin"
+parent = "corps"
+at = [188.1, 383.4]
+role = "leg-back-far"
+
+[[bone]]
+name = "patte-arriere-loin-bas"
+parent = "patte-arriere-loin"
+at = [162.0, 477.3]
+role = "leg-back-far-lower"
+
+[[bone]]
+name = "patte-avant-loin"
+parent = "corps"
+at = [646.9, 383.4]
+role = "leg-front-far"
+
+[[bone]]
+name = "patte-avant-loin-bas"
+parent = "patte-avant-loin"
+at = [653.1, 520.1]
+role = "leg-front-far-lower"
+
+[[bone]]
+name = "patte-arriere-pres"
+parent = "corps"
+at = [225.7, 383.4]
+role = "leg-back-near"
+
+[[bone]]
+name = "patte-arriere-pres-bas"
+parent = "patte-arriere-pres"
+at = [196.5, 477.3]
+role = "leg-back-near-lower"
+
+[[bone]]
+name = "patte-avant-pres"
+parent = "corps"
+at = [682.3, 383.4]
+role = "leg-front-near"
+
+[[bone]]
+name = "patte-avant-pres-bas"
+parent = "patte-avant-pres"
+at = [688.6, 520.1]
+role = "leg-front-near-lower"
+
+[[bone]]
+name = "meche-1"
+parent = "corps"
+at = [590.8, 396.8]
+role = "sway"
+
+[[bone]]
+name = "meche-2"
+parent = "corps"
+at = [472.3, 404.6]
+role = "sway"
+
+[[bone]]
+name = "meche-3"
+parent = "corps"
+at = [363.2, 402.4]
+role = "sway"
+
+[[bone]]
+name = "encolure"
+parent = "corps"
+at = [653.3, 316.4]
+role = "neck"
+
+[[bone]]
+name = "tete"
+parent = "encolure"
+# La nuque est au sommet arrière du crâne, au-dessus de la base des
+# oreilles : le broutage pivote ici, pas dans la joue.
+at = [796.2, 55.6]
+role = "head"
+
+[[bone]]
+name = "oreille-loin"
+parent = "tete"
+at = [792.2, 85.7]
+role = "ear"
+
+[[bone]]
+name = "oreille-pres"
+parent = "tete"
+at = [797.6, 103.4]
+role = "ear"
+
+[[bone]]
+name = "oeil"
+parent = "tete"
+at = [850.6, 131.4]
+role = "eye"
+
+[[bone]]
+name = "pupille"
+parent = "oeil"
+at = [850.6, 131.4]
+role = "pupil"
+
+[[bone]]
+name = "machoire"
+parent = "tete"
+at = [880.6, 224.4]
+role = "jaw"
+
+[[bone]]
+name = "levre"
+parent = "tete"
+at = [933.1, 228.3]
+role = "lip"
+
+[[piece]]
+bone = "patte-arriere-loin-bas"
+image = "morceaux-belier/patte-arriere-loin-bas.png"
+
+[[piece]]
+bone = "patte-arriere-loin"
+image = "morceaux-belier/patte-arriere-loin.png"
+
+[[piece]]
+bone = "patte-avant-loin-bas"
+image = "morceaux-belier/patte-avant-loin-bas.png"
+
+[[piece]]
+bone = "patte-avant-loin"
+image = "morceaux-belier/patte-avant-loin.png"
+
+[[piece]]
+bone = "queue"
+image = "morceaux-belier/queue.png"
+
+[[piece]]
+bone = "queue-milieu"
+image = "morceaux-belier/queue-milieu.png"
+
+[[piece]]
+bone = "queue-bout"
+image = "morceaux-belier/queue-bout.png"
+
+[[piece]]
+bone = "patte-arriere-pres-bas"
+image = "morceaux-belier/patte-arriere-pres-bas.png"
+
+[[piece]]
+bone = "patte-arriere-pres"
+image = "morceaux-belier/patte-arriere-pres.png"
+
+[[piece]]
+bone = "patte-avant-pres-bas"
+image = "morceaux-belier/patte-avant-pres-bas.png"
+
+[[piece]]
+bone = "patte-avant-pres"
+image = "morceaux-belier/patte-avant-pres.png"
+
+[[piece]]
+bone = "corps"
+image = "morceaux-belier/ventre.png"
+
+[[piece]]
+bone = "encolure"
+image = "morceaux-belier/encolure.png"
+
+[[piece]]
+bone = "meche-1"
+image = "morceaux-belier/meche-1.png"
+
+[[piece]]
+bone = "meche-2"
+image = "morceaux-belier/meche-2.png"
+
+[[piece]]
+bone = "meche-3"
+image = "morceaux-belier/meche-3.png"
+
+[[piece]]
+bone = "corps"
+image = "morceaux-belier/corps.png"
+
+[[piece]]
+bone = "oreille-loin"
+image = "morceaux-belier/oreille-loin.png"
+
+[[piece]]
+bone = "machoire"
+image = "morceaux-belier/machoire.png"
+
+[[piece]]
+bone = "tete"
+image = "morceaux-belier/tete.png"
+
+[[piece]]
+bone = "tete"
+image = "morceaux-belier/gencive.png"
+
+[[piece]]
+bone = "levre"
+image = "morceaux-belier/levre.png"
+
+[[piece]]
+bone = "oreille-pres"
+image = "morceaux-belier/oreille-pres.png"
+
+[[piece]]
+bone = "oeil"
+image = "morceaux-belier/oeil.png"
+eyes = "open"
+
+[[piece]]
+bone = "pupille"
+image = "morceaux-belier/pupille.png"
+eyes = "open"
+
+[[piece]]
+bone = "oeil"
+image = "morceaux-belier/reflet.png"
+eyes = "open"
+
+[[piece]]
+bone = "oeil"
+image = "morceaux-belier/oeil-ferme.png"
+eyes = "closed"

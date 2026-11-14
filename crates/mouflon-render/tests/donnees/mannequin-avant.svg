@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" width="160" height="120">
+  <!--
+    Mannequin : personnage d'exemple de Mouflon, un mouton de profil.
+    Il sert de modèle au contrat des rigs : remplace-le par ton propre dessin
+    en gardant les mêmes id de groupes et de pivots.
+    © 2026 Alejandro San Martin Lamas — MIT OR Apache-2.0
+  -->
+  <defs>
+    <linearGradient id="wool" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.55" stop-color="#f4f6fa"/>
+      <stop offset="1" stop-color="#dde3ee"/>
+    </linearGradient>
+    <linearGradient id="skin" gradientUnits="userSpaceOnUse" x1="0" y1="39.92" x2="0" y2="73.96">
+      <stop offset="0" stop-color="#8f9bb7"/>
+      <stop offset="1" stop-color="#6a7592"/>
+    </linearGradient>
+    <linearGradient id="leg-near" gradientUnits="userSpaceOnUse" x1="0" y1="84" x2="0" y2="108">
+      <stop offset="0" stop-color="#7d89a6"/>
+      <stop offset="1" stop-color="#636e8b"/>
+    </linearGradient>
+    <linearGradient id="leg-far" gradientUnits="userSpaceOnUse" x1="0" y1="84" x2="0" y2="108">
+      <stop offset="0" stop-color="#6a7591"/>
+      <stop offset="1" stop-color="#545e79"/>
+    </linearGradient>
+    <linearGradient id="ear-in" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#dcaab7"/>
+      <stop offset="1" stop-color="#c48f9f"/>
+    </linearGradient>
+    <linearGradient id="sclera" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e4e8f1"/>
+    </linearGradient>
+    <radialGradient id="iris" cx="0.45" cy="0.4" r="0.62">
+      <stop offset="0" stop-color="#e6bd5c"/>
+      <stop offset="0.55" stop-color="#c98f34"/>
+      <stop offset="1" stop-color="#7c4f1b"/>
+    </radialGradient>
+    <radialGradient id="blush" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#f29ab0" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#f29ab0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Pattes : toutes sous la toison, celles du fond d'abord -->
+  <g id="leg-back-far">
+    <path d="M53.5 84L60.5 84L59.65 107.4L54.35 107.4C54.35 103 52.86 102 51.9 100C51.9 97 53.5 95 53.5 84Z" fill="url(#leg-far)" stroke="#4c5570" stroke-width="1.2" stroke-linejoin="round"/>
+    <path d="M53.65 106.8C53.65 106.2 60.35 106.2 60.35 106.8L60.95 111.1Q60.95 112 59.95 112L53.85 112Q53.05 112 53.15 111.1Z" fill="#343a4c"/>
+    <path d="M58.21 108L58.47 111.6" stroke="#5a6075" stroke-width="0.8" stroke-linecap="round"/>
+    <circle id="pivot-leg-back-far" cx="57" cy="88" r="0.8"/>
+  </g>
+  <g id="leg-front-far">
+    <path d="M88.5 84L95.5 84C95.5 98.5 96.6 99.5 96.16 101.5C95.72 103.5 94.65 104.5 94.65 107.4L89.35 107.4Z" fill="url(#leg-far)" stroke="#4c5570" stroke-width="1.2" stroke-linejoin="round"/>
+    <path d="M88.65 106.8C88.65 106.2 95.35 106.2 95.35 106.8L95.95 111.1Q95.95 112 94.95 112L88.85 112Q88.05 112 88.15 111.1Z" fill="#343a4c"/>
+    <path d="M93.21 108L93.47 111.6" stroke="#5a6075" stroke-width="0.8" stroke-linecap="round"/>
+    <circle id="pivot-leg-front-far" cx="92" cy="88" r="0.8"/>
+  </g>
+  <g id="leg-back-near">
+    <path d="M45.3 84L52.7 84L51.8 107.4L46.2 107.4C46.2 103 44.66 102 43.7 100C43.7 97 45.3 95 45.3 84Z" fill="url(#leg-near)" stroke="#4c5570" stroke-width="1.2" stroke-linejoin="round"/>
+    <path d="M45.5 106.8C45.5 106.2 52.5 106.2 52.5 106.8L53.1 111.1Q53.1 112 52.1 112L45.7 112Q44.9 112 45 111.1Z" fill="#343a4c"/>
+    <path d="M50.26 108L50.54 111.6" stroke="#5a6075" stroke-width="0.8" stroke-linecap="round"/>
+    <circle id="pivot-leg-back-near" cx="49" cy="88" r="0.8"/>
+  </g>
+  <g id="leg-front-near">
+    <path d="M96.8 84L104.2 84C104.2 98.5 105.3 99.5 104.86 101.5C104.42 103.5 103.3 104.5 103.3 107.4L97.7 107.4Z" fill="url(#leg-near)" stroke="#4c5570" stroke-width="1.2" stroke-linejoin="round"/>
+    <path d="M97 106.8C97 106.2 104 106.2 104 106.8L104.6 111.1Q104.6 112 103.6 112L97.2 112Q96.4 112 96.5 111.1Z" fill="#343a4c"/>
+    <path d="M101.76 108L102.04 111.6" stroke="#5a6075" stroke-width="0.8" stroke-linecap="round"/>
+    <circle id="pivot-leg-front-near" cx="100.5" cy="88" r="0.8"/>
+  </g>
+
+  <!-- Corps : la toison -->
+  <g id="body">
+    <path d="M99 45.5A4.85 4.85 0 0 1 106.95 47A4.14 4.14 0 0 1 111.14 52.49A4.69 4.69 0 0 1 112.64 60.17A4.26 4.26 0 0 1 109.47 66.51A4.33 4.33 0 0 1 103.4 70.4A5.16 5.16 0 0 1 94.82 69.8A4.32 4.32 0 0 1 88.32 66.68A4.25 4.25 0 0 1 85.62 60.12A4.76 4.76 0 0 1 86.24 52.21A4.19 4.19 0 0 1 91.44 47.53A4.7 4.7 0 0 1 99 45.5Z" fill="url(#wool)" stroke="#a9b2c4" stroke-width="1.4" stroke-linejoin="round"/>
+    <path d="M71 49A8.74 8.74 0 0 1 85.56 49.08A4.87 4.87 0 0 1 93.86 51.79A5.18 5.18 0 0 1 101.62 54.26A3.64 3.64 0 0 1 105.34 59.28A3.86 3.86 0 0 1 107.36 65.38A6.84 6.84 0 0 1 109.18 75.78A4.25 4.25 0 0 1 106.88 82.95A3.83 3.83 0 0 1 103.61 88.29A4.19 4.19 0 0 1 97.67 91.97A4.39 4.39 0 0 1 90.44 95.09A6.98 6.98 0 0 1 79.48 95.6A10.08 10.08 0 0 1 62.18 96.54A6.2 6.2 0 0 1 52.03 94.54A5.08 5.08 0 0 1 44.73 91.68A4.18 4.18 0 0 1 38.07 88.44A3.82 3.82 0 0 1 35.12 82.95A4.47 4.47 0 0 1 33.19 75.75A5.87 5.87 0 0 1 34.08 65.28A4.17 4.17 0 0 1 35.8 58.95A4.08 4.08 0 0 1 41.57 54.97A4.16 4.16 0 0 1 47.22 50.96A6.26 6.26 0 0 1 56.79 49.65A8.02 8.02 0 0 1 71 49Z" fill="url(#wool)" stroke="#a9b2c4" stroke-width="1.35" stroke-linejoin="round"/>
+    <path d="M60.85 63.45A3.2 3.2 0 0 0 54.84 62.5" fill="none" stroke="#c9d0de" stroke-width="1.1" stroke-linecap="round"/>
+    <path d="M78.29 60.23A3.2 3.2 0 0 0 72.83 57.54" fill="none" stroke="#c9d0de" stroke-width="1.1" stroke-linecap="round"/>
+    <path d="M91.08 72.86A3.2 3.2 0 0 0 85 73.12" fill="none" stroke="#c9d0de" stroke-width="1.1" stroke-linecap="round"/>
+    <path d="M66.69 81.73A3.2 3.2 0 0 0 60.81 80.18" fill="none" stroke="#c9d0de" stroke-width="1.1" stroke-linecap="round"/>
+    <path d="M49.15 70.55A3.2 3.2 0 0 0 43.13 71.41" fill="none" stroke="#c9d0de" stroke-width="1.1" stroke-linecap="round"/>
+    <path d="M82.51 87.99A3.2 3.2 0 0 0 76.8 85.86" fill="none" stroke="#c9d0de" stroke-width="1.1" stroke-linecap="round"/>
+    <circle id="pivot-body" cx="75" cy="97" r="0.8"/>
+  </g>
+
+  <!-- Queue : touffe de laine en haut de la croupe -->
+  <g id="tail">
+    <path d="M37.6 65.2A3.64 3.64 0 0 1 36.6 70.8A3.21 3.21 0 0 1 34.6 75.4A2.61 2.61 0 0 1 30.6 76.2A3.08 3.08 0 0 1 27.4 72.6A3.37 3.37 0 0 1 26.6 67.4A3.32 3.32 0 0 1 28 62.4A3.26 3.26 0 0 1 31.4 58.6A3.11 3.11 0 0 1 36.2 57.8A4.82 4.82 0 0 1 37.6 65.2Z" fill="url(#wool)" stroke="#a9b2c4" stroke-width="1.3" stroke-linejoin="round"/>
+    <path d="M30.6 64.6A3.2 3.2 0 0 1 32.6 69.2" fill="none" stroke="#c9d0de" stroke-width="1" stroke-linecap="round"/>
+    <circle id="pivot-tail" cx="35.6" cy="59.6" r="0.8"/>
+  </g>
+
+
+  <!-- Tête -->
+  <g id="head">
+    <g id="ear-far">
+      <path d="M108.11 43.78C104.25 41.58 98.36 41.94 94.31 44.52C92.1 45.99 92.66 48.2 95.05 48.75C99.65 49.67 104.62 48.75 108.3 47.28Z" fill="url(#skin)" stroke="#4c5570" stroke-width="1.01" stroke-linejoin="round"/>
+      <circle id="pivot-ear-far" cx="107.38" cy="45.62" r="0.8"/>
+    </g>
+    <!-- La mâchoire : le bas du museau, qui s'ouvre autour de sa charnière
+         (pivot-jaw). Derrière, cachés par la tête tant qu'elle est fermée :
+         la joue qui s'étire et l'intérieur de la bouche. -->
+    <g id="jaw">
+      <path d="M130.6 64.2L124.4 66.9L122.4 68.4L122.4 72.2L124.6 72.3L124.6 69.6L131.1 68.3Z" fill="url(#skin)"/>
+      <path d="M136.45 65.68L133.4 60.8L129.6 62.3L126.4 64.7L128.4 68.7L131.6 68.9L135.4 67.4Z" fill="#3a2b3f"/>
+      <ellipse cx="132.6" cy="67.6" rx="2.3" ry="0.85" transform="rotate(-14 132.6 67.6)" fill="#c97f8f"/>
+      <path d="M136.45 65.68C136.26 69.36 133.5 71.75 129.27 72.49C127.51 72.77 125.55 72.83 123.5 72.68L123.5 69.2L130.19 67.89C132.22 68.44 134.24 67.89 135.71 66.42Z" fill="url(#skin)"/>
+      <path d="M136.45 65.68C136.26 69.36 133.5 71.75 129.27 72.49C127.51 72.77 125.55 72.83 123.5 72.68" fill="none" stroke="#4c5570" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle id="pivot-jaw" cx="123.5" cy="69.2" r="0.8"/>
+    </g>
+    <path d="M123.5 72.68C118.9 72.35 113.9 70.98 109.95 68.81C104.25 65.5 100.75 58.69 100.57 52.43C100.57 49.3 101.49 46.91 102.96 45.44C105.72 40.29 112.71 38.45 118.23 39.92C124.86 41.76 130.93 48.75 134.06 56.11C135.53 59.61 136.63 62.92 136.45 65.68L135.71 66.42C134.24 67.89 132.22 68.44 130.19 67.89L123.5 69.2Z" fill="url(#skin)"/>
+    <path d="M123.5 72.68C118.9 72.35 113.9 70.98 109.95 68.81C104.25 65.5 100.75 58.69 100.57 52.43C100.57 49.3 101.49 46.91 102.96 45.44C105.72 40.29 112.71 38.45 118.23 39.92C124.86 41.76 130.93 48.75 134.06 56.11C135.53 59.61 136.63 62.92 136.45 65.68" fill="none" stroke="#4c5570" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <ellipse cx="124.49" cy="60.34" rx="5.15" ry="3.13" fill="url(#blush)"/>
+    <path d="M132.58 58.5C133.87 58.14 134.98 58.87 135.16 60.16" fill="none" stroke="#2b3042" stroke-width="1.15" stroke-linecap="round"/>
+    <path d="M135.71 66.42C134.24 67.89 132.22 68.44 130.19 67.89" fill="none" stroke="#2b3042" stroke-width="1.1" stroke-linecap="round"/>
+    <g id="eyes">
+      <ellipse cx="117.31" cy="50.59" rx="5.34" ry="5.89" transform="rotate(-12 117.31 50.59)" fill="#c3cadb"/>
+      <ellipse cx="117.31" cy="50.59" rx="4.51" ry="5.06" transform="rotate(-12 117.31 50.59)" fill="url(#sclera)"/>
+      <g id="pupils">
+        <circle cx="118.14" cy="51.05" r="3.27" fill="url(#iris)"/>
+        <circle cx="118.14" cy="51.05" r="3.02" fill="none" stroke="#5a3712" stroke-width="0.5" stroke-opacity="0.8"/>
+        <rect x="115.79" y="50.2" width="4.7" height="1.7" rx="0.85" fill="#16121a"/>
+        <circle id="pivot-pupils" cx="118.14" cy="51.05" r="0.6"/>
+      </g>
+      <circle cx="117.13" cy="49.49" r="1.05" fill="#ffffff" fill-opacity="0.95"/>
+      <circle cx="119.3" cy="52.4" r="0.45" fill="#ffffff" fill-opacity="0.8"/>
+      <ellipse cx="117.31" cy="50.59" rx="6.9" ry="7.45" transform="rotate(-12 117.31 50.59)" fill="none" stroke="url(#skin)" stroke-width="3.13"/>
+      <ellipse cx="117.31" cy="50.59" rx="5.34" ry="5.89" transform="rotate(-12 117.31 50.59)" fill="none" stroke="#2b3042" stroke-width="0.97" stroke-opacity="0.55"/>
+      <path d="M112.34 49.67C113.26 44.89 119.7 43.78 122.46 48.2" fill="none" stroke="#2b3042" stroke-width="1.24" stroke-linecap="round"/>
+      <circle id="pivot-eyes" cx="117.31" cy="50.59" r="0.8"/>
+    </g>
+    <path d="M104.06 48.66A4.28 4.28 0 0 1 104.43 55.56A4.73 4.73 0 0 1 106.46 62.92A4.23 4.23 0 0 1 106.82 69.73A3.32 3.32 0 0 1 102.78 66.23A3.45 3.45 0 0 1 99.65 61.63A3.36 3.36 0 0 1 97.99 56.48A3.42 3.42 0 0 1 97.99 50.96A3.27 3.27 0 0 1 100.2 46.18A3.18 3.18 0 0 1 104.34 43.14A3.43 3.43 0 0 1 104.06 48.66Z" fill="url(#wool)" stroke="#a9b2c4" stroke-width="1.2" stroke-linejoin="round"/>
+    <g id="ear-near">
+      <path d="M109.95 48.2C106.09 45.99 99.28 46.91 94.68 50.78C91.92 53.17 92.1 55.93 94.68 56.85C99.83 58.32 106.46 56.11 110.32 52.8Z" fill="url(#skin)" stroke="#4c5570" stroke-width="1.1" stroke-linejoin="round"/>
+      <path d="M108.3 50.59C104.43 49.67 98.91 50.96 95.23 54.09C94.31 55.01 94.86 55.74 95.97 55.74C100.75 56.11 105.35 54.64 108.48 52.43Z" fill="url(#ear-in)"/>
+      <circle id="pivot-ear-near" cx="109.03" cy="50.59" r="0.8"/>
+    </g>
+    <circle id="pivot-head" cx="102.5" cy="62" r="0.8"/>
+  </g>
+
+  <circle id="pivot-ground" cx="75" cy="112" r="0.8"/>
+</svg>
