@@ -1,0 +1,497 @@
+# Southdown : la brebis anglaise des South Downs, en pleine laine (le dessin
+# de base), le bélier et l'agnelle de huit semaines, encore allaitée, au pré
+# début mai (docs/races/southdown.md). Le comportement part du Mannequin,
+# réglé sur la fiche (§ 8) : une race docile et curieuse, qui broute et
+# rumine longtemps. Les jeux (gambades, pivots, courses) sont ceux de
+# l'agneau, à l'âge du second pic de jeu : les conditions `lamb` les lui
+# réservent ; chez l'adulte, ils restent possibles chez les actifs. Le moteur
+# sait le reste : jamais de flehmen pour une brebis ou un agneau, des jeux à
+# poids plein entre agneaux, la tétée avec sa mère (animation-animale § 5).
+
+[pet]
+# Trois brebis pour un bélier.
+sex = { male = 0.25 }
+id = "southdown"
+name = "Southdown"
+author = "Alejandro San Martin Lamas"
+description = "Le Southdown anglais, la plus petite des races Down : un tonneau de laine crème serrée sur des pattes courtes, face laineuse au museau souris, truffe presque noire, sans cornes. Docile et curieux ; son agnelle gambade."
+version = "0.1.0"
+license = "MIT OR Apache-2.0"
+category = "sheep"
+region = "british-isles"
+
+[appearance]
+rig = "southdown.svg"
+# Une unité = un centimètre ; 0,5 point par centimètre. La brebis : 60 cm au
+# garrot, 64,88 cm du sol au haut de la toison (les limites du dessin).
+height = 32.440
+
+# Bélier Southdown : 67 cm au garrot, sans cornes, plus lourd, encolure épaisse, tête plus large.
+[appearance.male]
+rig = "southdown-belier.svg"
+height = 36.294
+width = 57.691
+stride = 36.886
+
+# Agnelle Southdown de huit semaines, 45 cm au garrot : laine crème frisée, museau souris, truffe gris-rosé, longues pattes aux chaussettes faon, queue entière.
+[appearance.lamb]
+rig = "southdown-agneau.svg"
+height = 28.524
+width = 30.230
+stride = 25.600
+weeks = 8
+
+[physics]
+width = 51.188         # 102,38 cm d'étendue horizontale du dessin
+stride = 33.247        # 0,8 × 41,56 cm de l'épaule (sous la laine) au sol
+
+# Les sons du Mannequin (domaine public, déjà crédités dans CREDITS.md) pour
+# les adultes ; pour l'agnelle, le vrai bêlement d'agneau déjà livré avec
+# Lainou (OpenGameArt, CC0), pas les quatre prises de chevreaux (voir
+# tools/races/southdown/README.md). Pas de cloche pour cette race de prairie.
+[sounds]
+bele = { files = ["sons/mouton-1.mp3", "sons/mouton-2.mp3", "sons/mouton-3.mp3", "sons/mouton-4.mp3"], lamb = ["sons/agneau-1.mp3"], volume = 0.7, mouth = true }
+broute = { files = ["sons/broute-1.mp3", "sons/broute-2.mp3"], volume = 0.5 }
+pose = { files = ["sons/pose-1.mp3", "sons/pose-2.mp3"], volume = 0.5 }
+
+[reflexes]
+spawn = "fall"
+fall = "fall"
+land = "land"
+land_hard = "land_hard"
+held = "held"
+thrown = "fall"
+# Au bord, la brebis fait demi-tour ; l'agnelle saute plus volontiers.
+edge = [
+    { to = "turn", weight = 5 },
+    { to = "hop_down", weight = 1 },
+    { to = "leap", weight = 0.5 },
+    { to = "leap", weight = 1.0, when = "lamb" },
+]
+wall = "turn"
+# Docile : elle regarde ce qui la touche, ou appelle ; l'agnelle fait
+# parfois un petit bond.
+poke = [
+    { to = "look", weight = 3 },
+    { to = "bleat", weight = 2 },
+    { to = "hop", weight = 1, when = "lamb" },
+    { to = "sniff", weight = 1 },
+]
+# Une fenêtre plus haute, toute proche : sauter sur son rebord s'il est à
+# portée (sinon, le moteur ne le propose pas), ou faire demi-tour.
+window_side = [
+    { to = "turn", weight = 3 },
+    { to = "leap", weight = 0.5 },
+    { to = "leap", weight = 1.0, when = "lamb" },
+]
+meet = [
+    { to = "sniff", weight = 5 },
+    { to = "look", weight = 1 },
+    { to = "bleat", weight = 2 },
+    { to = "gambol", weight = 2, when = "lamb" },
+    { to = "play_back", weight = 1, when = "lively" },
+]
+together = "pronk"
+leave = "hop"
+# Une alerte : elle appelle et rejoint vite le troupeau ; pas une charge.
+startle = [
+    { to = "look", weight = 3 },
+    { to = "bleat", weight = 2 },
+    { to = "run", weight = 2 },
+    { to = "hop", weight = 1 },
+]
+sleepy = "yawn"
+wake = [{ to = "stretch", weight = 3 }, { to = "sit", weight = 1 }]
+wind = [{ to = "turn_away", weight = 4, when = "into_wind" }, { to = "brace", weight = 1 }]
+
+[[behavior]]
+name = "stand"
+motion = "stand"
+duration = [1.0, 3.0]
+next = [
+    { to = "walk", weight = 5 },
+    { to = "graze", weight = 3 },
+    { to = "look", weight = 3 },
+    { to = "sit", weight = 3 },
+    { to = "trot", weight = 2 },
+    { to = "hop", weight = 1, when = "lamb" },
+    { to = "shake", weight = 1 },
+    { to = "scratch", weight = 1 },
+    { to = "bleat", weight = 2 },
+    # Les jeux de l'agnelle sont spontanés, même sans le réglage « actif » :
+    # huit semaines se situe au deuxième pic de jeu (fiche § 8.2), surtout
+    # des sauts chez les femelles. Les poids restent un choix de rythme pour
+    # le bureau.
+    { to = "pronk", weight = 2, when = "lamb" },
+    { to = "gambol", weight = 3, when = "lamb" },
+    { to = "pivot", weight = 2, when = "lamb" },
+    { to = "race", weight = 2, when = "lamb" },
+    { to = "gambol", weight = 2, when = ["lamb", "morning"] },
+    { to = "race", weight = 2, when = ["lamb", "morning"] },
+    { to = "gambol", weight = 3, when = ["lamb", "evening"] },
+    { to = "race", weight = 3, when = ["lamb", "evening"] },
+    { to = "look", weight = 4, when = "cursor_near:220" },
+    # Chez l'adulte, un tonneau de laine sur pattes courtes : rarement, et
+    # seulement chez les actifs.
+    { to = "pronk", weight = 0.4, when = "lively" },
+    { to = "gambol", weight = 0.4, when = "lively" },
+    { to = "pivot", weight = 0.2, when = "lively" },
+    { to = "race", weight = 0.5, when = ["lively", "evening"] },
+    { to = "paw", weight = 1, when = "rowdy" },
+    { to = "ruminate", weight = 2, when = "calm" },
+    { to = "yawn", weight = 1, when = "calm" },
+    { to = "sit", weight = 3, when = "typing" },
+    { to = "graze", weight = 2, when = "typing" },
+    { to = "sit", weight = 6, when = "night" },
+]
+
+# La brebis broute longtemps ; l'agnelle broute déjà à huit semaines, par
+# séquences plus brèves dans la nature, et tète encore (fiche § 8.3 et
+# § 8.6) : la durée est un entre-deux.
+[[behavior]]
+name = "graze"
+motion = "graze"
+duration = [4.0, 12.0]
+sound = { name = "broute", chance = 0.3 }
+next = [
+    { to = "stand", weight = 3 },
+    { to = "walk", weight = 3 },
+    { to = "look", weight = 2 },
+    { to = "sit", weight = 2 },
+    { to = "look", weight = 3, when = "cursor_near:220" },
+]
+
+[[behavior]]
+name = "look"
+motion = "look"
+duration = [1.2, 3.0]
+contagious = 0.25
+next = [
+    { to = "stand", weight = 3 },
+    { to = "walk", weight = 3 },
+    { to = "trot", weight = 1 },
+    { to = "bleat", weight = 2 },
+    { to = "sit", weight = 1 },
+]
+
+# Vitesses du Mannequin × 33,25 / 29 : mêmes allures rapportées aux pattes
+# de la brebis (de l'épaule, sous la laine, au sol) ; le moteur les rapporte
+# à son tour aux pattes de l'agnelle (petits pas rapides, trot léger et
+# galop court) et du bélier.
+[[behavior]]
+name = "walk"
+motion = "walk"
+speed = 52.7
+duration = [2.0, 6.0]
+contagious = 0.35
+next = [
+    { to = "stand", weight = 3 },
+    { to = "graze", weight = 2 },
+    { to = "look", weight = 2 },
+    { to = "turn", weight = 2 },
+    { to = "trot", weight = 2 },
+    { to = "race", weight = 1 },
+    { to = "sit", weight = 1 },
+]
+
+[[behavior]]
+name = "trot"
+motion = "walk"
+speed = 91.7
+duration = [1.5, 3.5]
+next = [{ to = "walk", weight = 3 }, { to = "stand", weight = 2 }, { to = "race", weight = 2 }]
+
+[[behavior]]
+name = "run"
+motion = "run"
+speed = 171.9
+duration = [0.8, 1.8]
+contagious = 0.5
+next = [{ to = "look", weight = 3 }, { to = "bleat", weight = 2 }, { to = "stand", weight = 2 }]
+
+[[behavior]]
+name = "turn"
+motion = "turn"
+duration = 0.3
+next = [{ to = "walk", weight = 3 }, { to = "stand", weight = 2 }, { to = "look", weight = 1 }]
+
+# Le repos reste fréquent entre deux courses ; pattes repliées sur le
+# sternum. Le moteur peut la blottir sur le dos d'une voisine couchée.
+[[behavior]]
+name = "sit"
+motion = "sit"
+duration = [6.0, 14.0]
+next = [
+    { to = "stand", weight = 2 },
+    { to = "stretch", weight = 2 },
+    { to = "ruminate", weight = 2 },
+    { to = "sleep", weight = 3 },
+    { to = "sleep", weight = 8, when = "night" },
+    { to = "sleep", weight = 12, when = "away" },
+]
+
+# La rumination est déjà présente après un mois à un mois et demi ; elle
+# reste plus brève ici que celle des brebis adultes (fiche § 8.5).
+[[behavior]]
+name = "ruminate"
+motion = "sit"
+chew = true
+duration = [6.0, 12.0]
+next = [
+    { to = "sit", weight = 2 },
+    { to = "stand", weight = 2 },
+    { to = "sleep", weight = 2 },
+    { to = "sleep", weight = 8, when = "away" },
+]
+
+[[behavior]]
+name = "sleep"
+motion = "sleep"
+duration = [25.0, 60.0]
+next = "sit"
+
+# Élans réduits comme la racine de la hauteur par rapport au Mannequin
+# (sqrt(32,43 / 54) ≈ 0,775) : les bonds restent à l'échelle de son corps,
+# et le moteur les rapporte à celui de l'agnelle.
+[[behavior]]
+name = "hop"
+motion = "jump"
+jump = [54.4, 335.9]
+duration = "forever"
+
+[[behavior]]
+name = "hop_down"
+motion = "jump"
+jump = [86.4, 187.7]
+duration = "forever"
+
+# Sauter sur une fenêtre plus haute, toute proche, comme un mouflon sur un
+# rocher (docs/animation-animale.md, « Sauter sur un rebord plus haut »). Une
+# race de plaine, lourde : portée de 1,3 longueur de patte, soit 54 cm pour
+# la brebis (un peu moins que sa hauteur au garrot, 60 cm) et 42 cm pour
+# l'agnelle. Le saut : mesurer le rebord du regard, reculer pour prendre son
+# élan si besoin, se ramasser, bondir.
+[[behavior]]
+name = "leap"
+motion = "leap"
+reach = 1.3
+duration = "forever"
+on_land = "leap_land"
+
+# La réception, sabots plantés ; puis repartir sur le rebord, ou regarder
+# autour de soi.
+[[behavior]]
+name = "leap_land"
+motion = "stand"
+duration = 0.3
+sound = { name = "pose", chance = 0.6 }
+next = [{ to = "walk", weight = 3 }, { to = "look", weight = 2 }]
+
+# Plusieurs bonds raides peuvent s'enchaîner après la course.
+[[behavior]]
+name = "pronk"
+motion = "pronk"
+jump = [19.2, 328.4]
+duration = "forever"
+contagious = 0.4
+on_land = [{ to = "land", weight = 3 }, { to = "pronk", weight = 2 }, { to = "gambol", weight = 1 }]
+
+[[behavior]]
+name = "gambol"
+motion = "pronk"
+twist = true
+jump = [30.9, 296.4]
+duration = "forever"
+contagious = 0.45
+on_land = [
+    { to = "land", weight = 3 },
+    { to = "gambol", weight = 3 },
+    { to = "pivot", weight = 2 },
+    { to = "race", weight = 1 },
+]
+
+[[behavior]]
+name = "pivot"
+motion = "pronk"
+spin = true
+jump = [0.0, 234.6]
+duration = "forever"
+on_land = [{ to = "land", weight = 3 }, { to = "gambol", weight = 2 }, { to = "race", weight = 1 }]
+
+# La course contagieuse en aller-retour, un grand jeu des bandes d'agneaux.
+[[behavior]]
+name = "race"
+motion = "run"
+speed = 161.0
+duration = [1.0, 1.8]
+contagious = 0.6
+on_edge = "race_turn"
+on_wall = "race_turn"
+next = [{ to = "race_turn", weight = 3 }, { to = "gambol", weight = 2 }, { to = "stand", weight = 2 }]
+
+[[behavior]]
+name = "race_turn"
+motion = "turn"
+duration = 0.3
+next = [{ to = "race", weight = 2 }, { to = "stand", weight = 1 }, { to = "pivot", weight = 1 }]
+
+# Les invitations sont reconnues par le moteur. Les coups de front restent
+# courts et peu fréquents dans les rencontres d'une agnelle (fiche § 8.2).
+[[behavior]]
+name = "play_invite"
+motion = "invite"
+duration = 1.4
+next = [{ to = "stand", weight = 3 }, { to = "gambol", weight = 2 }, { to = "look", weight = 1 }]
+
+[[behavior]]
+name = "play_back"
+motion = "back"
+speed = 29.9
+duration = 1.1
+next = "play_lunge"
+
+[[behavior]]
+name = "play_lunge"
+motion = "charge"
+speed = 126.0
+duration = 0.8
+on_meet = "play_butt"
+next = [{ to = "stand", weight = 2 }, { to = "gambol", weight = 2 }]
+
+[[behavior]]
+name = "play_butt"
+motion = "stand"
+duration = [0.4, 0.7]
+sound = { name = "pose", chance = 0.7 }
+next = [{ to = "shake", weight = 2 }, { to = "gambol", weight = 3 }, { to = "pivot", weight = 2 }, { to = "stand", weight = 2 }]
+
+[[behavior]]
+name = "fall"
+motion = "fall"
+duration = "forever"
+
+[[behavior]]
+name = "land"
+motion = "land"
+duration = 0.35
+sound = { name = "pose", chance = 0.6 }
+next = [{ to = "stand", weight = 4 }, { to = "look", weight = 2 }, { to = "shake", weight = 1 }]
+
+[[behavior]]
+name = "land_hard"
+motion = "land"
+duration = 0.9
+sound = [{ name = "pose" }, { name = "bele", chance = 0.4 }]
+next = [{ to = "daze", weight = 3 }, { to = "look", weight = 1 }, { to = "shake", weight = 1 }]
+
+[[behavior]]
+name = "held"
+motion = "held"
+duration = "forever"
+sound = { name = "bele", chance = 0.5 }
+
+[[behavior]]
+name = "shake"
+motion = "shake"
+duration = 0.9
+next = [{ to = "stand", weight = 2 }, { to = "walk", weight = 2 }, { to = "graze", weight = 1 }]
+
+[[behavior]]
+name = "stretch"
+motion = "stretch"
+duration = 2.4
+next = [{ to = "shake", weight = 2 }, { to = "stand", weight = 2 }, { to = "walk", weight = 2 }, { to = "graze", weight = 1 }]
+
+[[behavior]]
+name = "scratch"
+motion = "scratch"
+duration = [1.4, 2.4]
+next = [{ to = "stand", weight = 2 }, { to = "graze", weight = 2 }, { to = "shake", weight = 1 }]
+
+[[behavior]]
+name = "yawn"
+motion = "yawn"
+duration = 1.6
+contagious = 0.15
+next = [{ to = "sit", weight = 4 }, { to = "stand", weight = 2 }, { to = "sit", weight = 12, when = "away" }]
+
+# Appel aigu à la mère : tête levée, cou en avant, bouche grande ouverte.
+[[behavior]]
+name = "bleat"
+motion = "bleat"
+duration = 0.9
+sound = "bele"
+next = [{ to = "stand", weight = 2 }, { to = "walk", weight = 2 }, { to = "look", weight = 1 }]
+
+[[behavior]]
+name = "sniff"
+motion = "sniff"
+duration = [1.0, 1.8]
+next = [
+    { to = "stand", weight = 2 },
+    { to = "walk", weight = 2 },
+    { to = "graze", weight = 1 },
+    { to = "bleat", weight = 2 },
+    { to = "flehmen", weight = 3, when = ["male", "adult"] },
+]
+
+# Le flehmen du bélier suit un reniflement lors d'une rencontre avec une
+# brebis (le moteur le réserve au mâle adulte) ; le cabré reste un geste
+# d'inspection du rig : aucune suite ordinaire n'y mène.
+[[behavior]]
+name = "flehmen"
+motion = "flehmen"
+duration = [6.0, 9.0]
+next = [{ to = "stand", weight = 2 }, { to = "walk", weight = 2 }]
+
+[[behavior]]
+name = "stamp"
+motion = "stamp"
+duration = 0.9
+next = [{ to = "look", weight = 3 }, { to = "stand", weight = 2 }, { to = "run", weight = 1 }]
+
+# Le réglage « énervé » peut faire gratter le sol puis jouer du front ;
+# même là, elle renonce le plus souvent, sans séquence de combat d'adulte.
+[[behavior]]
+name = "paw"
+motion = "paw"
+duration = [1.0, 1.8]
+next = [{ to = "stand", weight = 4 }, { to = "play_back", weight = 1 }]
+
+[[behavior]]
+name = "back_up"
+motion = "back"
+speed = 30.0
+duration = [1.0, 1.6]
+next = [{ to = "stand", weight = 3 }, { to = "play_lunge", weight = 1 }]
+
+[[behavior]]
+name = "rear"
+motion = "rear"
+duration = 1.15
+next = "stand"
+
+[[behavior]]
+name = "charge"
+motion = "charge"
+speed = 150.0
+duration = [0.7, 1.2]
+next = [{ to = "stand", weight = 2 }, { to = "shake", weight = 1 }, { to = "walk", weight = 1 }]
+
+[[behavior]]
+name = "daze"
+motion = "daze"
+duration = [1.6, 2.6]
+next = [{ to = "shake", weight = 3 }, { to = "stand", weight = 1 }]
+
+[[behavior]]
+name = "turn_away"
+motion = "turn"
+duration = 0.3
+next = "brace"
+
+[[behavior]]
+name = "brace"
+motion = "brace"
+duration = [2.5, 5.0]
+next = [{ to = "shake", weight = 2 }, { to = "stand", weight = 2 }, { to = "walk", weight = 1 }]
