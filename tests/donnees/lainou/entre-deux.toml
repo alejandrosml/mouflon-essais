@@ -1,0 +1,27 @@
+# Images intermédiaires, calculées par tools/inbetween (RIFE) : à refaire
+# avec l'outil si les images de l'animal changent.
+count = 1
+strips_left = "entre-deux/gauche/{name}.png"
+strips_right = "entre-deux/droite/{name}.png"
+
+# Animations rapides : plus d'images intermédiaires après chaque image.
+[counts]
+tombe = 3
+
+# Images trop différentes de la suivante : pas d'image intermédiaire après elles.
+[skip]
+atterrit = [0, 1, 2, 9]
+baille = [10, 11]
+bele = [9]
+brouter_debut = [4]
+brouter_fin = [4]
+course = [3]
+demi_tour = [0, 1, 2, 3, 4, 5]
+etourdi = [0, 11]
+regarde = [13]
+s_ebroue = [0, 2, 4, 5, 8]
+saute = [11]
+se_cogne = [0, 1, 2]
+se_reveiller = [4]
+surpris = [6]
+tombe = [0]

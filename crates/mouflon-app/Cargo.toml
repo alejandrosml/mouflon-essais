@@ -1,0 +1,51 @@
+[package]
+name = "mouflon-app"
+description = "Application Mouflon : fenêtres transparentes, entrées, menu de la barre des menus."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+# La page de présentation de Mouflon : `homepage` du workspace (« À propos »).
+homepage.workspace = true
+
+[[bin]]
+name = "mouflon"
+path = "src/main.rs"
+
+[dependencies]
+mouflon-core.workspace = true
+mouflon-render.workspace = true
+mouflon-platform.workspace = true
+wgpu.workspace = true
+winit.workspace = true
+pollster.workspace = true
+serde.workspace = true
+toml.workspace = true
+directories.workspace = true
+chrono.workspace = true
+thiserror.workspace = true
+log.workspace = true
+env_logger.workspace = true
+# La mise à jour : lire une signature, la vérifier.
+base64.workspace = true
+ed25519-compact.workspace = true
+
+[features]
+# Un programme d'essai de la mise à jour : il ne se met à jour que depuis un
+# dossier qu'on lui donne, avec une clé d'essai, et le dit quand on lui
+# demande sa version. Le vrai Mouflon ne s'installe jamais à sa place, ni
+# lui à la place du vrai. Jamais dans une version publiée.
+essai-maj = []
+
+[target.'cfg(any(target_os = "macos", target_os = "windows"))'.dependencies]
+tray-icon.workspace = true
+muda.workspace = true
+
+# L'icône et la description du programme, sous Windows (voir `build.rs`).
+[target.'cfg(windows)'.build-dependencies]
+winresource = "0.1"
+
+[lints]
+workspace = true

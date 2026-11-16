@@ -1,0 +1,263 @@
+# Brebis Solognote adulte, 65 cm au garrot, sept pixels par centimètre.
+# Morceaux originaux peints à l'aquarelle par mouflon-peintre --solognote.
+# La peau du garrot est à y=375, le sol à 830. La tête est nue, sans toupet.
+# Les jointures sont cachées sous des chevauchements arrondis.
+size = [1200, 900]
+ground = [540, 830]
+muzzle = [1022.8, 441.4]
+
+[[bone]]
+name = "racine"
+at = [540, 830]
+
+[[bone]]
+name = "corps"
+parent = "racine"
+at = [530, 530]
+role = "body"
+
+[[bone]]
+name = "queue"
+parent = "corps"
+at = [236, 442]
+role = "tail"
+
+[[bone]]
+name = "queue-milieu"
+parent = "queue"
+at = [207, 530]
+role = "tail"
+
+[[bone]]
+name = "queue-bout"
+parent = "queue-milieu"
+at = [187, 621]
+role = "tail"
+
+[[bone]]
+name = "patte-arriere-loin"
+parent = "corps"
+at = [315, 585]
+role = "leg-back-far"
+
+[[bone]]
+name = "patte-arriere-loin-bas"
+parent = "patte-arriere-loin"
+at = [290, 675]
+role = "leg-back-far-lower"
+
+[[bone]]
+name = "patte-avant-loin"
+parent = "corps"
+at = [742, 585]
+role = "leg-front-far"
+
+[[bone]]
+name = "patte-avant-loin-bas"
+parent = "patte-avant-loin"
+at = [748, 716]
+role = "leg-front-far-lower"
+
+[[bone]]
+name = "patte-arriere-pres"
+parent = "corps"
+at = [350, 585]
+role = "leg-back-near"
+
+[[bone]]
+name = "patte-arriere-pres-bas"
+parent = "patte-arriere-pres"
+at = [322, 675]
+role = "leg-back-near-lower"
+
+[[bone]]
+name = "patte-avant-pres"
+parent = "corps"
+at = [775, 585]
+role = "leg-front-near"
+
+[[bone]]
+name = "patte-avant-pres-bas"
+parent = "patte-avant-pres"
+at = [781, 716]
+role = "leg-front-near-lower"
+
+[[bone]]
+name = "meche-1"
+parent = "corps"
+at = [689.8, 597.0]
+role = "sway"
+
+[[bone]]
+name = "meche-2"
+parent = "corps"
+at = [579.5, 604.0]
+role = "sway"
+
+[[bone]]
+name = "meche-3"
+parent = "corps"
+at = [478.0, 602.0]
+role = "sway"
+
+[[bone]]
+name = "encolure"
+parent = "corps"
+at = [748, 525]
+role = "neck"
+
+[[bone]]
+name = "tete"
+parent = "encolure"
+# La nuque est au sommet arrière du crâne, au-dessus de la base des
+# oreilles : le broutage pivote ici, pas dans la joue.
+at = [885, 275]
+role = "head"
+
+[[bone]]
+name = "oreille-loin"
+parent = "tete"
+at = [881.3, 301.2]
+role = "ear"
+
+[[bone]]
+name = "oreille-pres"
+parent = "tete"
+at = [886.2, 316.6]
+role = "ear"
+
+[[bone]]
+name = "oeil"
+parent = "tete"
+at = [934.6, 341.0]
+role = "eye"
+
+[[bone]]
+name = "pupille"
+parent = "oeil"
+at = [934.6, 341.0]
+role = "pupil"
+
+[[bone]]
+name = "machoire"
+parent = "tete"
+at = [962.0, 422.1]
+role = "jaw"
+
+[[bone]]
+name = "levre"
+parent = "tete"
+at = [1009.9, 425.5]
+role = "lip"
+
+[[piece]]
+bone = "patte-arriere-loin-bas"
+image = "morceaux/patte-arriere-loin-bas.png"
+
+[[piece]]
+bone = "patte-arriere-loin"
+image = "morceaux/patte-arriere-loin.png"
+
+[[piece]]
+bone = "patte-avant-loin-bas"
+image = "morceaux/patte-avant-loin-bas.png"
+
+[[piece]]
+bone = "patte-avant-loin"
+image = "morceaux/patte-avant-loin.png"
+
+[[piece]]
+bone = "queue"
+image = "morceaux/queue.png"
+
+[[piece]]
+bone = "queue-milieu"
+image = "morceaux/queue-milieu.png"
+
+[[piece]]
+bone = "queue-bout"
+image = "morceaux/queue-bout.png"
+
+[[piece]]
+bone = "patte-arriere-pres-bas"
+image = "morceaux/patte-arriere-pres-bas.png"
+
+[[piece]]
+bone = "patte-arriere-pres"
+image = "morceaux/patte-arriere-pres.png"
+
+[[piece]]
+bone = "patte-avant-pres-bas"
+image = "morceaux/patte-avant-pres-bas.png"
+
+[[piece]]
+bone = "patte-avant-pres"
+image = "morceaux/patte-avant-pres.png"
+
+[[piece]]
+bone = "corps"
+image = "morceaux/ventre.png"
+
+[[piece]]
+bone = "encolure"
+image = "morceaux/encolure.png"
+
+[[piece]]
+bone = "meche-1"
+image = "morceaux/meche-1.png"
+
+[[piece]]
+bone = "meche-2"
+image = "morceaux/meche-2.png"
+
+[[piece]]
+bone = "meche-3"
+image = "morceaux/meche-3.png"
+
+[[piece]]
+bone = "corps"
+image = "morceaux/corps.png"
+
+[[piece]]
+bone = "oreille-loin"
+image = "morceaux/oreille-loin.png"
+
+[[piece]]
+bone = "machoire"
+image = "morceaux/machoire.png"
+
+[[piece]]
+bone = "tete"
+image = "morceaux/tete.png"
+
+[[piece]]
+bone = "tete"
+image = "morceaux/gencive.png"
+
+[[piece]]
+bone = "levre"
+image = "morceaux/levre.png"
+
+[[piece]]
+bone = "oreille-pres"
+image = "morceaux/oreille-pres.png"
+
+[[piece]]
+bone = "oeil"
+image = "morceaux/oeil.png"
+eyes = "open"
+
+[[piece]]
+bone = "pupille"
+image = "morceaux/pupille.png"
+eyes = "open"
+
+[[piece]]
+bone = "oeil"
+image = "morceaux/reflet.png"
+eyes = "open"
+
+[[piece]]
+bone = "oeil"
+image = "morceaux/oeil-ferme.png"
+eyes = "closed"
