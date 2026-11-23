@@ -1,0 +1,492 @@
+# Heidschnucke grise cornue : une brebis de quatre ans en toison d’automne,
+# de la lande de Lunebourg (fiche docs/races/heidschnucke.md, § 0 et 8).
+# Tous les gestes du Mannequin sont conservés ; leurs fréquences traduisent
+# une marcheuse très grégaire et craintive, prompte à fuir puis à regarder.
+# Les jeux et les charges restent rares chez cet adulte.
+
+[pet]
+# Trois brebis pour un bélier ; chacun porte le dessin de son sexe, et
+# l'agneau le sien.
+sex = { male = 0.25 }
+id = "heidschnucke"
+name = "Heidschnucke"
+author = "Alejandro San Martin Lamas"
+description = "La Heidschnucke grise de la lande de Lunebourg : cape noire, longues mèches argentées striées de noir, pattes fines, queue courte ; cornes en faucille pour la brebis, en colimaçon pour le bélier, et un agneau tout noir. Farouche, marcheuse et très grégaire."
+version = "0.1.0"
+license = "MIT OR Apache-2.0"
+category = "sheep"
+region = "europe"
+
+[appearance]
+rig = "heidschnucke.svg"
+
+# 0,5 point par cm : garrot osseux 67 cm ; le dessin entier,
+# cornes comprises, mesure 98,51 cm (1 unité SVG = 1 cm).
+# Le moteur met à l’échelle la boîte du dessin, sans les pivots,
+# et non les marges du viewBox : 98,51 × 0,5 = 49,26 points.
+height = 49.26
+
+# Bélier Heidschnucke : 72 cm au garrot, cornes massives en escargot écartées de la tête, encolure épaisse, tête plus forte.
+[appearance.male]
+rig = "heidschnucke-belier.svg"
+height = 53.445
+width = 64.277
+stride = 36.967
+
+# Agneau Heidschnucke de deux semaines : 40 cm au garrot, né noir en laine bouclée, sans cornes.
+[appearance.lamb]
+rig = "heidschnucke-agneau.svg"
+height = 28.272
+width = 29.243
+stride = 22.994
+
+[physics]
+width = 57.0  # environ 114 cm du nez à la fesse, à 0,5 point par cm
+stride = 34.4  # 1,6 × 21,5 pt (43 cm du pivot de patte au sol)
+# Ses mèches d'environ 10 cm (la fiche de la race) : elles se balancent plus lentement
+# que des mèches courtes, comme un pendule.
+fleece = 10
+
+# Sons identiques à ceux du Mannequin : domaine public / CC0,
+# provenance et licences dans CREDITS.md. Pas de sonnaille.
+[sounds]
+bele = { files = ["sons/mouton-1.mp3", "sons/mouton-2.mp3", "sons/mouton-3.mp3", "sons/mouton-4.mp3"], lamb = ["sons/agneau-1.mp3"], volume = 0.7, mouth = true }
+broute = { files = ["sons/broute-1.mp3", "sons/broute-2.mp3"], volume = 0.5 }
+pose = { files = ["sons/pose-1.mp3", "sons/pose-2.mp3"], volume = 0.5 }
+
+[reflexes]
+spawn = "fall"
+fall = "fall"
+land = [{ to = "land", weight = 1 }]
+land_hard = "land_hard"
+held = "held"
+thrown = "fall"
+edge = [
+    { to = "turn", weight = 5 },
+    { to = "hop_down", weight = 1 },
+    { to = "leap", weight = 1.5 },
+]
+wall = "turn"
+
+# Au toucher, elle fuit ou alerte ses voisines (fiche § 8.1).
+poke = [
+    { to = "run", weight = 6 },
+    { to = "look", weight = 2 },
+    { to = "stamp", weight = 1 },
+    { to = "bleat", weight = 1 },
+]
+# Une fenêtre plus haute, toute proche : sauter sur son rebord s'il est à
+# portée (sinon, le moteur ne le propose pas), ou faire demi-tour.
+window_side = [{ to = "turn", weight = 3 }, { to = "leap", weight = 1.5 }]
+
+# Elle renifle les autres moutons ; les jeux de front restent rares.
+meet = [
+    { to = "sniff", weight = 4 },
+    { to = "look", weight = 3 },
+    { to = "bleat", weight = 1 },
+    { to = "play_back", weight = 0.4, when = "lively" },
+]
+together = "pronk"
+leave = "hop"
+
+# La fuite d'une brebis entraîne le troupeau.
+startle = [
+    { to = "run", weight = 8 },
+    { to = "look", weight = 2 },
+    { to = "stamp", weight = 1 },
+    { to = "hop", weight = 1 },
+]
+sleepy = "yawn"
+wake = [{ to = "look", weight = 3 }, { to = "stretch", weight = 2 }, { to = "sit", weight = 1 }]
+
+# Rustique : elle tourne le dos au vent ; elle se blottit peu.
+wind = [{ to = "turn_away", weight = 5, when = "into_wind" }, { to = "brace", weight = 0.3 }]
+
+# Marcheuse et grignoteuse : elle repart souvent au pas, aux aguets.
+# Le pointeur est une alerte ; elle ne cherche pas à venir le renifler.
+[[behavior]]
+name = "stand"
+motion = "stand"
+duration = [1.2, 3.2]
+next = [
+    { to = "walk", weight = 8 },
+    { to = "graze", weight = 7 },
+    { to = "look", weight = 6 },
+    { to = "sit", weight = 1 },
+    { to = "trot", weight = 1 },
+    { to = "shake", weight = 1 },
+    { to = "scratch", weight = 1 },
+    { to = "bleat", weight = 0.5 },
+    { to = "look", weight = 6, when = "cursor_near:280" },
+    { to = "run", weight = 8, when = "cursor_near:160" },
+    { to = "paw", weight = 0.25, when = "rowdy" },
+    { to = "pronk", weight = 0.3, when = "lively" },
+    { to = "gambol", weight = 0.3, when = "lively" },
+    { to = "pivot", weight = 0.2, when = "lively" },
+    { to = "race", weight = 0.3, when = "lively" },
+    { to = "race", weight = 0.5, when = ["lively", "evening"] },
+    { to = "trot", weight = 1, when = "lively" },
+    { to = "ruminate", weight = 2, when = "calm" },
+    { to = "yawn", weight = 1, when = "calm" },
+]
+
+# Elle grignote en marchant, puis relève souvent la tête (fiche § 8).
+[[behavior]]
+name = "graze"
+motion = "graze"
+duration = [4.0, 10.0]
+sound = { name = "broute", chance = 0.35 }
+next = [
+    { to = "stand", weight = 2 },
+    { to = "walk", weight = 5 },
+    { to = "look", weight = 3 },
+    { to = "scratch", weight = 1 },
+    { to = "look", weight = 6, when = "cursor_near:280" },
+    { to = "run", weight = 8, when = "cursor_near:160" },
+]
+
+# Le groupe lève la tête ensemble : une alerte fortement contagieuse.
+[[behavior]]
+name = "look"
+motion = "look"
+duration = [1.5, 3.5]
+contagious = 0.65
+next = [
+    { to = "stand", weight = 3 },
+    { to = "walk", weight = 3 },
+    { to = "graze", weight = 2 },
+    { to = "sit", weight = 1 },
+    { to = "bleat", weight = 0.5 },
+    { to = "run", weight = 10, when = "cursor_near:200" },
+]
+
+# Longues traversées au pas, entraînant les voisines. Les vitesses du
+# Mannequin sont multipliées par stride / 29 pour conserver ses allures.
+[[behavior]]
+name = "walk"
+motion = "walk"
+speed = 54.6
+duration = [5.0, 12.0]
+contagious = 0.6
+next = [
+    { to = "stand", weight = 2 },
+    { to = "graze", weight = 4 },
+    { to = "look", weight = 2 },
+    { to = "turn", weight = 2 },
+    { to = "sit", weight = 1 },
+    { to = "trot", weight = 1 },
+    { to = "run", weight = 1 },
+    { to = "run", weight = 8, when = "cursor_near:160" },
+]
+
+[[behavior]]
+name = "trot"
+motion = "walk"
+speed = 94.9
+duration = [2.0, 5.0]
+next = [{ to = "walk", weight = 3 }, { to = "stand", weight = 2 }, { to = "run", weight = 1 }]
+
+# Courte fuite collective, puis demi-tour pour surveiller.
+[[behavior]]
+name = "run"
+motion = "run"
+speed = 177.9
+duration = [1.0, 2.4]
+contagious = 0.75
+next = [{ to = "turn", weight = 6 }, { to = "look", weight = 2 }, { to = "walk", weight = 1 }]
+
+# Après le demi-tour, elle s’arrête le plus souvent pour regarder.
+[[behavior]]
+name = "turn"
+motion = "turn"
+duration = 0.35
+next = [{ to = "look", weight = 5 }, { to = "walk", weight = 2 }, { to = "stand", weight = 1 }]
+
+# Elle rumine couchée, les pattes repliées ; davantage au calme, la nuit.
+[[behavior]]
+name = "sit"
+motion = "sit"
+duration = [4.0, 9.0]
+next = [
+    { to = "stand", weight = 3 },
+    { to = "stretch", weight = 2 },
+    { to = "ruminate", weight = 3 },
+    { to = "sleep", weight = 2 },
+    { to = "sleep", weight = 6, when = "night" },
+    { to = "sleep", weight = 12, when = "away" },
+]
+
+# Rumination : les durées restent celles du modèle, sans mesure propre
+# à cette race ; la fiche situe surtout ces repos à la bergerie.
+[[behavior]]
+name = "ruminate"
+motion = "sit"
+chew = true
+duration = [10.0, 24.0]
+next = [
+    { to = "sit", weight = 2 },
+    { to = "stretch", weight = 2 },
+    { to = "stand", weight = 1 },
+    { to = "sleep", weight = 1 },
+    { to = "sleep", weight = 8, when = "away" },
+]
+
+[[behavior]]
+name = "sleep"
+motion = "sleep"
+duration = [20.0, 50.0]
+next = [{ to = "sit", weight = 1 }]
+
+[[behavior]]
+name = "hop"
+motion = "jump"
+jump = [68.0, 420.0]
+duration = "forever"
+
+[[behavior]]
+name = "hop_down"
+motion = "jump"
+jump = [106.0, 235.0]
+duration = "forever"
+
+# Sauter sur une fenêtre plus haute, toute proche, comme un mouflon sur un
+# rocher (docs/animation-animale.md, « Sauter sur un rebord plus haut »). Une
+# race rustique. Portée : 1,9 longueur de patte, soit 82 cm (1,2 fois sa
+# hauteur au garrot, 67 cm). Le saut : mesurer le rebord du regard, reculer
+# pour prendre son élan si besoin, se ramasser, bondir.
+[[behavior]]
+name = "leap"
+motion = "leap"
+reach = 1.9
+duration = "forever"
+on_land = "leap_land"
+
+# La réception, sabots plantés ; puis repartir sur le rebord, ou regarder
+# autour de soi.
+[[behavior]]
+name = "leap_land"
+motion = "stand"
+duration = 0.3
+sound = { name = "pose", chance = 0.6 }
+next = [{ to = "walk", weight = 3 }, { to = "look", weight = 2 }]
+
+# Les gestes du Mannequin restent disponibles ; leurs entrées sont
+# rares chez cette brebis adulte. Les agneaux de la race sont noirs.
+[[behavior]]
+name = "pronk"
+motion = "pronk"
+duration = "forever"
+contagious = 0.15
+
+# Petit saut tordu : une possibilité rare, surtout en humeur active.
+[[behavior]]
+name = "gambol"
+motion = "pronk"
+twist = true
+jump = [39.0, 375.0]
+duration = "forever"
+contagious = 0.15
+on_land = [
+    { to = "land", weight = 4 },
+    { to = "gambol", weight = 1 },
+    { to = "pivot", weight = 1 },
+    { to = "race", weight = 1 },
+]
+
+[[behavior]]
+name = "pivot"
+motion = "pronk"
+spin = true
+jump = [0.0, 295.0]
+duration = "forever"
+on_land = [{ to = "land", weight = 3 }, { to = "gambol", weight = 1 }, { to = "race", weight = 1 }]
+
+[[behavior]]
+name = "race"
+motion = "run"
+speed = 166.1
+duration = [1.2, 2.2]
+contagious = 0.5
+on_edge = "race_turn"
+on_wall = "race_turn"
+next = [{ to = "race_turn", weight = 2 }, { to = "gambol", weight = 1 }, { to = "stand", weight = 2 }]
+
+[[behavior]]
+name = "race_turn"
+motion = "turn"
+duration = 0.35
+next = [{ to = "race", weight = 2 }, { to = "stand", weight = 1 }]
+
+[[behavior]]
+name = "play_back"
+motion = "back"
+speed = 30.8
+duration = 1.1
+next = "play_lunge"
+
+[[behavior]]
+name = "play_lunge"
+motion = "charge"
+speed = 130.5
+duration = 0.8
+on_meet = "play_butt"
+next = [{ to = "stand", weight = 2 }, { to = "gambol", weight = 1 }]
+
+[[behavior]]
+name = "play_butt"
+motion = "stand"
+duration = [0.4, 0.7]
+sound = { name = "pose", chance = 0.7 }
+next = [
+    { to = "shake", weight = 2 },
+    { to = "sniff", weight = 2 },
+    { to = "gambol", weight = 1 },
+    { to = "stand", weight = 2 },
+]
+
+[[behavior]]
+name = "play_invite"
+motion = "invite"
+duration = 1.4
+next = [{ to = "stand", weight = 2 }, { to = "gambol", weight = 1 }, { to = "look", weight = 1 }]
+
+[[behavior]]
+name = "fall"
+motion = "fall"
+duration = "forever"
+
+[[behavior]]
+name = "land"
+motion = "land"
+duration = 0.35
+sound = { name = "pose", chance = 0.6 }
+next = [{ to = "stand", weight = 5 }, { to = "look", weight = 2 }, { to = "shake", weight = 1 }]
+
+[[behavior]]
+name = "land_hard"
+motion = "land"
+duration = 0.9
+sound = [{ name = "pose" }, { name = "bele", chance = 0.4 }]
+next = [{ to = "daze", weight = 3 }, { to = "look", weight = 1 }, { to = "shake", weight = 1 }]
+
+[[behavior]]
+name = "held"
+motion = "held"
+duration = "forever"
+sound = { name = "bele", chance = 0.65 }
+
+[[behavior]]
+name = "shake"
+motion = "shake"
+duration = 0.9
+next = [{ to = "stand", weight = 2 }, { to = "walk", weight = 2 }, { to = "graze", weight = 2 }]
+
+[[behavior]]
+name = "stretch"
+motion = "stretch"
+duration = 2.4
+next = [{ to = "shake", weight = 2 }, { to = "stand", weight = 2 }, { to = "walk", weight = 2 }, { to = "graze", weight = 2 }]
+
+[[behavior]]
+name = "scratch"
+motion = "scratch"
+duration = [1.4, 2.4]
+next = [{ to = "stand", weight = 2 }, { to = "graze", weight = 2 }, { to = "shake", weight = 1 }]
+
+[[behavior]]
+name = "yawn"
+motion = "yawn"
+duration = 1.6
+contagious = 0.15
+next = [
+    { to = "stand", weight = 3 },
+    { to = "look", weight = 1 },
+    { to = "sit", weight = 2 },
+    { to = "sit", weight = 12, when = "away" },
+]
+
+[[behavior]]
+name = "bleat"
+motion = "bleat"
+duration = 0.85
+sound = "bele"
+next = [{ to = "stand", weight = 2 }, { to = "walk", weight = 2 }, { to = "look", weight = 1 }]
+
+# Reniflement entre moutons, uniquement ; pas de curiosité du pointeur.
+[[behavior]]
+name = "sniff"
+motion = "sniff"
+duration = [1.0, 2.0]
+next = [
+    { to = "stand", weight = 2 },
+    { to = "walk", weight = 2 },
+    { to = "graze", weight = 2 },
+    { to = "bleat", weight = 1 },
+    { to = "flehmen", weight = 0.4 },
+]
+
+# Flehmen conservé pour le contrat ; très rare chez la brebis.
+[[behavior]]
+name = "flehmen"
+motion = "flehmen"
+duration = [6.0, 9.0]
+next = [{ to = "stand", weight = 2 }, { to = "walk", weight = 2 }, { to = "look", weight = 1 }]
+
+# L’alarme : elle regarde, puis le troupeau détale.
+[[behavior]]
+name = "stamp"
+motion = "stamp"
+duration = 0.9
+next = [
+    { to = "look", weight = 3 },
+    { to = "stand", weight = 1 },
+    { to = "run", weight = 2 },
+    { to = "paw", weight = 0.25, when = "rowdy" },
+]
+
+# Charges et cabrés restent disponibles pour les planches du moteur,
+# mais une brebis adulte y arrive très rarement et renonce souvent.
+[[behavior]]
+name = "paw"
+motion = "paw"
+duration = [1.0, 2.0]
+next = [{ to = "back_up", weight = 1 }, { to = "charge", weight = 0.3 }, { to = "stand", weight = 6 }]
+
+[[behavior]]
+name = "back_up"
+motion = "back"
+speed = 40.3
+duration = [1.0, 1.6]
+next = [{ to = "rear", weight = 0.1 }, { to = "charge", weight = 1 }, { to = "stand", weight = 5 }]
+
+[[behavior]]
+name = "rear"
+motion = "rear"
+duration = 1.15
+next = "charge"
+
+[[behavior]]
+name = "charge"
+motion = "charge"
+speed = 201.7
+duration = [0.7, 1.2]
+next = [{ to = "stand", weight = 2 }, { to = "shake", weight = 1 }, { to = "walk", weight = 1 }]
+
+[[behavior]]
+name = "daze"
+motion = "daze"
+duration = [1.6, 2.6]
+next = [{ to = "shake", weight = 3 }, { to = "stand", weight = 1 }]
+
+[[behavior]]
+name = "turn_away"
+motion = "turn"
+duration = 0.35
+next = "brace"
+
+# Elle résiste au vent, tête basse, sans chercher longtemps l’abri.
+[[behavior]]
+name = "brace"
+motion = "brace"
+duration = [2.5, 5.0]
+next = [{ to = "shake", weight = 2 }, { to = "stand", weight = 2 }, { to = "walk", weight = 1 }]
