@@ -1,11 +1,18 @@
-# Le ménage du dépôt d'essais, chaque nuit (scripts/menage.sh) : les branches
-# d'essai abandonnées sont supprimées, et les passages des essais terminés
-# depuis plus d'un jour effacés, sauf le dernier de chaque branche.
+# Le ménage du dépôt d'essais (scripts/menage.sh) : les branches d'essai
+# abandonnées sont supprimées, et les passages des essais terminés depuis
+# plus d'un jour effacés, sauf le dernier de chaque branche.
+#
+# Planifié chaque soir à 20 h 17, heure de Paris. GitHub lance les tâches
+# planifiées en retard, souvent de plusieurs heures, et en saute : le passage
+# suivant reprend ce qu'un passage n'a pas fait. Du lundi au vendredi, entre
+# 7 h et 18 h, heure de Paris, le ménage ne fait rien (il regarde l'heure en
+# commençant), à la main comme à l'heure prévue.
 name: Ménage
 
 on:
   schedule:
-    - cron: "17 3 * * *"
+    - cron: "17 20 * * *"
+      timezone: "Europe/Paris"
   workflow_dispatch:
     inputs:
       a_blanc:
@@ -19,10 +26,30 @@ concurrency:
   group: menage
   cancel-in-progress: false
 
+env:
+  # Du lundi (1) au vendredi (5), de 7 h à 17 h 59, heure de Paris : rien.
+  # Une heure qui ne se lit pas arrête le passage, et un décalage qui n'est
+  # pas celui de Paris aussi (+0100 ou +0200 : sans son fichier de fuseau,
+  # `date` donnerait l'heure UTC).
+  HEURE: |
+    PARIS="$(TZ=Europe/Paris date '+%u %H%M %z')"
+    case "$PARIS" in
+      [1-5]\ 0[7-9][0-5][0-9]\ +0[12]00 | [1-5]\ 1[0-7][0-5][0-9]\ +0[12]00)
+        echo "::notice::il est $PARIS à Paris (jour de la semaine, heure, décalage) : du lundi au vendredi, entre 7 h et 18 h, le ménage ne fait rien. Le passage suivant le fera."
+        echo "ouvert=non" >> "$GITHUB_OUTPUT" ;;
+      [1-7]\ [0-1][0-9][0-5][0-9]\ +0[12]00 | [1-7]\ 2[0-3][0-5][0-9]\ +0[12]00)
+        echo "Paris : $PARIS (jour de la semaine, heure, décalage)"
+        echo "ouvert=oui" >> "$GITHUB_OUTPUT" ;;
+      *)
+        echo "::error::le jour et l'heure de Paris ne se lisent pas : « $PARIS »"
+        exit 1 ;;
+    esac
+
 jobs:
   menage:
     name: Ne garder que ce qui sert encore
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     permissions:
       actions: write # efface les anciens passages
       contents: write # supprime les branches d'essai abandonnées
@@ -30,7 +57,12 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       A_BLANC: ${{ inputs.a_blanc && '1' || '' }}
     steps:
+      - name: L'heure
+        id: heure
+        run: eval "$HEURE"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: steps.heure.outputs.ouvert == 'oui'
         with:
           persist-credentials: false
-      - run: bash scripts/menage.sh
+      - if: steps.heure.outputs.ouvert == 'oui'
+        run: bash scripts/menage.sh
