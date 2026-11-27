@@ -1,0 +1,4 @@
+# Un script de Windows garde ses fins de ligne de Windows, où qu'on le
+# récupère : avec d'autres, l'interpréteur de commandes peut mal le lire.
+*.cmd text eol=crlf
+

@@ -1,0 +1,65 @@
+# Pelote, mouton de bureau original d'Alejandro San Martin Lamas, dessiné en
+# vectoriel (119 poses). Ses comportements sont ceux d'eSheep 64 : marche,
+# course, sommeil, chutes, escalade des murs et des fenêtres, bain, trèfle,
+# rencontre avec le mouton noir… Ils sont adaptés du fichier animations.xml
+# de desktopPet (licence MIT, © 2016 Adriano Petrucci, voir
+# NOTICE_desktopPet_MIT.txt).
+
+[pet]
+id = "pelote"
+name = "Pelote"
+author = "Alejandro San Martin Lamas"
+description = "Mouton de bureau tout en laine douce, avec son collier et sa clochette."
+version = "1.0"
+license = "MIT OR Apache-2.0"
+category = "sheep"     # sa famille : tous les moutons ensemble
+
+[appearance]
+sprites = "pelote.png"        # 12 × 10 images de 240 pixels
+tiles = [12, 10]
+scale = 0.33333334            # 240 pixels → 80 points
+# Images intermédiaires entre les poses (calculées par tools/inbetween) :
+# 270 images pour adoucir 104 passages.
+inbetweens = "entre-deux.toml"
+
+[desktoppet]
+animations = "animations.xml"
+tile = [80, 80]               # le fichier est réglé pour des images de 80 pixels
+
+# Réactions de Mouflon que le fichier desktopPet ne prévoit pas : le pointeur
+# qui file tout près le fait bondir, ou détaler ; quand tu t'absentes, il
+# s'endort (`sleep1a`), et se réveille à ton retour (la suite de son
+# sommeil) ; un coup de vent dans le museau, il lui tourne le dos, comme les
+# moutons, sinon il baisse la tête.
+[desktoppet.reactions]
+startle = [{ to = "jump", weight = 2 }, { to = "run_begin", weight = 1 }]
+sleepy = "sleep1a"
+wind = [{ to = "rotate1a", weight = 4, when = "into_wind" }, { to = "look_down", weight = 1 }]
+
+# Sons (enregistrements libres de droits, CC0 : voir CREDITS.md) : bêlements
+# de brebis, la clochette de son collier, le broutage du trèfle, le bain et
+# un petit bruit d'atterrissage. Chaque son a plusieurs prises.
+[sounds]
+bele = { files = ["sons/mouton-1.mp3", "sons/mouton-2.mp3", "sons/mouton-3.mp3", "sons/mouton-4.mp3"], volume = 0.75 }
+clochette = { files = ["sons/clochette-1.mp3", "sons/clochette-2.mp3"], volume = 0.5 }
+broute = { files = ["sons/broute-1.mp3", "sons/broute-2.mp3"], volume = 0.6 }
+bain = { files = ["sons/bain-1.mp3", "sons/bain-2.mp3"], volume = 0.6 }
+pose = { files = ["sons/pose-1.mp3", "sons/pose-2.mp3"], volume = 0.5 }
+
+# Les animations du fichier desktopPet (par leur nom) et leurs sons : `frame`
+# est le rang de l'image dans la séquence, `chance` la probabilité.
+[desktoppet.sounds]
+walk = { name = "clochette", frame = 0, chance = 0.03 }
+run = { name = "clochette", frame = 1, chance = 0.15 }
+jump = { name = "clochette", frame = 5, chance = 0.6 }
+drag = { name = "bele", chance = 0.6 }
+toss = [{ name = "clochette" }, { name = "bele", chance = 0.3 }]
+boing = [{ name = "clochette", frame = 2 }, { name = "bele", chance = 0.4 }]
+"fall soft" = { name = "pose", frame = 4, chance = 0.7 }
+"fall hard" = [{ name = "pose" }, { name = "bele", chance = 0.5 }]
+kill = "bele"
+sync = { name = "bele", chance = 0.8 }
+eat = { name = "broute", frame = 5 }
+bathc = { name = "bain" }
+bathd = { name = "bain", frame = 3, chance = 0.7 }
+blacksheepc = { name = "bele", frame = 4, chance = 0.8 }
