@@ -1,0 +1,133 @@
+[package]
+name = "mouflon-platform"
+description = "Couche système de Mouflon : fenêtres des autres apps, écrans, curseur. Seul crate autorisé à contenir de l'unsafe."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+log.workspace = true
+raw-window-handle.workspace = true
+
+# Ressources du processus (essais).
+[target.'cfg(unix)'.dependencies]
+libc.workspace = true
+
+[target.'cfg(all(unix, not(target_os = "macos")))'.dependencies]
+x11rb.workspace = true
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows-sys = { workspace = true, features = [
+    "Win32_Foundation",
+    "Win32_Globalization",
+    "Win32_Graphics_Dwm",
+    "Win32_Graphics_Gdi",
+    "Win32_Media_Multimedia",
+    "Win32_Security",
+    "Win32_Storage_Xps",
+    "Win32_System_LibraryLoader",
+    "Win32_System_Performance",
+    "Win32_System_Power",
+    "Win32_System_ProcessStatus",
+    "Win32_System_Registry",
+    "Win32_System_RemoteDesktop",
+    "Win32_System_SystemInformation",
+    "Win32_System_Threading",
+    "Win32_UI_Accessibility",
+    "Win32_UI_Controls",
+    "Win32_UI_HiDpi",
+    "Win32_UI_Input",
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_UI_Shell",
+    "Win32_UI_WindowsAndMessaging",
+] }
+# Les calques de la scène : DirectComposition, et Direct3D 11 pour leurs images.
+windows = { workspace = true, features = [
+    "std",
+    "Win32_Foundation",
+    "Win32_Graphics_Direct3D",
+    "Win32_Graphics_Direct3D11",
+    "Win32_Graphics_DirectComposition",
+    "Win32_Graphics_Dxgi",
+    "Win32_Graphics_Dxgi_Common",
+] }
+windows-numerics.workspace = true
+# L'image d'une fenêtre de Mouflon, pour la vitrine de la CI.
+png.workspace = true
+
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2.workspace = true
+block2.workspace = true
+# Le menu de l'icône de la barre des menus (fait par l'app avec muda).
+muda.workspace = true
+objc2-foundation = { workspace = true, features = ["NSString", "NSGeometry", "NSArray", "NSThread", "NSURL", "NSLocale", "NSAttributedString", "NSDictionary", "NSObject", "NSData", "NSRunLoop", "NSKeyValueObserving", "NSNotification", "NSBundle", "NSError", "NSProcessInfo", "NSDistributedNotificationCenter", "NSDate", "NSTimer"] }
+objc2-app-kit = { workspace = true, features = [
+    "libc",
+    # Écoute de la touche Échap (blocs d'Objective-C).
+    "block2",
+    "NSScreen",
+    "NSWorkspace",
+    "NSRunningApplication",
+    "NSEvent",
+    "NSWindow",
+    "NSView",
+    "NSResponder",
+    "NSGraphics",
+    "NSPanel",
+    # Fenêtres « À propos » et des réglages, menu d'un animal.
+    "NSApplication",
+    "NSAppearance",
+    "NSAttributedString",
+    "NSBitmapImageRep",
+    "NSBox",
+    "NSButton",
+    "NSCell",
+    "NSColor",
+    "NSControl",
+    "NSFont",
+    "NSImage",
+    "NSImageRep",
+    "NSImageView",
+    "NSScrollView",
+    "NSLayoutConstraint",
+    "NSMenu",
+    "NSMenuItem",
+    "NSParagraphStyle",
+    "NSSlider",
+    "NSPopUpButton",
+    "NSText",
+    "NSTextField",
+    # L'icône de la barre des menus.
+    "NSStatusBar",
+    "NSStatusItem",
+    "NSStatusBarButton",
+    # Sons des animaux.
+    "NSSound",
+    # Horloge de l'écran (CADisplayLink).
+    "objc2-quartz-core",
+    # Diagnostics des essais (réglages d'accessibilité de l'affichage).
+    "NSAccessibility",
+] }
+objc2-quartz-core = { workspace = true, features = ["std", "objc2-core-foundation", "CABase", "CADisplayLink", "CAFrameRateRange", "CALayer", "CATransaction", "objc2-core-graphics"] }
+# CGDirectDisplay, CFPreferences : le visualiseur de clavier, que macOS 27.2
+# n'annonce plus parmi les fenêtres, lu dans ses réglages.
+objc2-core-graphics = { workspace = true, features = ["CGWindow", "CGGeometry", "CGEvent", "CGEventSource", "CGEventTypes", "CGImage", "CGDataProvider", "CGColorSpace", "CGBitmapContext", "CGContext", "CGDirectDisplay"] }
+objc2-core-foundation = { workspace = true, features = ["CFArray", "CFDictionary", "CFNumber", "CFString", "CFBase", "CFCGTypes", "CFRunLoop", "CFDate", "CFData", "CFPreferences"] }
+# Noms des fonctions Rust dans les piles relevées (diagnostics des essais).
+rustc-demangle = "0.1"
+# Ouvrir Mouflon à l'ouverture de session (macOS 13 et plus).
+objc2-service-management = { workspace = true, features = ["std", "SMAppService", "objc2", "objc2-foundation"] }
+# Accessibilité : la place exacte du Dock (avec l'autorisation de l'utilisateur).
+objc2-application-services = { workspace = true, features = ["std", "libc", "HIServices", "AXError", "AXUIElement", "AXValue"] }
+
+# Ce crate n'hérite pas du `forbid(unsafe_code)` du workspace : c'est la
+# frontière avec le système. Chaque bloc unsafe y est commenté.
+[lints.rust]
+unsafe_op_in_unsafe_fn = "deny"
+missing_debug_implementations = "warn"
+
+[lints.clippy]
+undocumented_unsafe_blocks = "warn"
